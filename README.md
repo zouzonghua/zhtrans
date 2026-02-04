@@ -71,7 +71,16 @@ npm run dev
 npm run build
 ```
 
-### 3. 安装到浏览器 (重要)
+### 3. 运行测试
+```bash
+# 运行单次测试
+npm run test
+
+# 开启监听模式 (开发推荐)
+npm run test:watch
+```
+
+### 4. 安装到浏览器 (重要)
 1. 打开 Chrome 扩展程序页面 `chrome://extensions/`。
 2. 开启右上角的 **开发者模式**。
 3. 点击 **加载已解压的扩展程序**。

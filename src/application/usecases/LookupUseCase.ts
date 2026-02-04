@@ -23,16 +23,16 @@ export class LookupUseCase {
     // 1. 尝试从仓库获取缓存
     if (this.repository) {
       const cached = await this.repository.get(trimmedText);
-      console.log(`[Glimpse] Cache hit: "${trimmedText}"`);
+      // console.log(`[Glimpse] Cache hit: "${trimmedText}"`);
       if (cached) {
-        console.log(`[Glimpse] Cache hit: "${trimmedText}"`);
+        // console.log(`[Glimpse] Cache hit: "${trimmedText}"`);
         return cached;
       }
     }
 
     // 2. 缓存未击中，执行网络请求翻译
     const result = await this.translator.translate(trimmedText);
-    console.log(`[Glimpse] Cache miss: "${trimmedText}"`);
+    // console.log(`[Glimpse] Cache miss: "${trimmedText}"`);
 
     // 4. 将结果持久化到仓库
     if (this.repository) {
