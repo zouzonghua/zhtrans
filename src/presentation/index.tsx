@@ -1,14 +1,14 @@
-import { h, render } from 'preact';
+import { render } from 'preact';
 import { GlimpseApp } from './components/GlimpseApp';
-import styles from './styles.css?inline';
 import { LookupUseCase } from '@/application/usecases/LookupUseCase';
+import styles from './styles.css?inline';
 
 export function initUI(useCase: LookupUseCase) {
   // 创建 Shadow DOM 的宿主元素
   const container = document.createElement('div');
   container.id = 'glimpse-host';
   document.body.appendChild(container);
-  
+
   // 使用 Shadow DOM (mode: open) 隔离插件样式，防止被宿主页面的 CSS 污染
   const shadowRoot = container.attachShadow({ mode: 'open' });
 
@@ -23,11 +23,11 @@ export function initUI(useCase: LookupUseCase) {
 
   // 渲染 Preact 应用，并注入业务用例 (Dependency Injection)
   render(
-    <GlimpseApp 
+    <GlimpseApp
       onTranslate={(text) => useCase.execute(text)}
       onSpeak={(text) => useCase.playAudio(text)}
       onStopSpeak={() => useCase.stopAudio()}
-    />, 
+    />,
     root
   );
 
