@@ -35,15 +35,17 @@ Glimpse/
 │   │   └── repositories/     # 仓储接口的具体实现
 │   │
 │   ├── presentation/         # [表现层] UI 与交互逻辑
-│   │   ├── components/       # 原子化 UI 组件 (无状态或仅含 UI 状态)
-│   │   │   ├── GlimpseApp    # 根组件：协调器，组合各个 Hook 与子组件
+│   │   ├── components/       # 原子化 UI 组件 (无状态 View，仅负责渲染)
+│   │   │   ├── GlimpseApp    # 根组件：纯 UI (Dumb Component)
 │   │   │   ├── Popup         # 翻译结果弹窗容器
 │   │   │   ├── Trigger       # 划词浮动图标
 │   │   │   └── ...
-│   │   ├── hooks/            # [逻辑复用] 抽离的交互逻辑 (Custom Hooks)
-│   │   │   ├── useSelection        # 负责监听选区与计算触发位置
-│   │   │   ├── useTranslationFlow  # 负责翻译 API 的调用状态流转
-│   │   │   └── useDismissal        # 负责滚动销毁与其他关闭策略
+│   │   ├── hooks/            # [ViewModel & Logic] 交互逻辑层
+│   │   │   ├── useGlimpseModel     # [ViewModel] 聚合所有逻辑，暴露 State & Actions
+│   │   │   ├── useSelection        # [Logic] 负责监听选区与计算触发位置
+│   │   │   ├── useTranslationFlow  # [Logic] 管理翻译 API 调用与结果状态流转
+│   │   │   ├── useDismissal        # [Logic] 负责滚动销毁与其他关闭策略
+│   │   │   └── useShortcutTrigger  # [Logic] 全局快捷键监听
 │   │   ├── utils/            # 纯工具函数 (如几何位置计算 calculatePopupPosition)
 │   │   └── styles.css        # 基于 BEM 规范的样式表
 │   │
@@ -60,7 +62,13 @@ Glimpse/
     *   两者都依赖于 `domain` 层定义的接口。
     *   *好处*：更换翻译源（如从 Google 换到 Bing）只需新增一个 Service 实现，无需修改 UI 代码。
 
-2.  **单一职责 (Single Responsibility)**：
+2.  **MVVM 模式 (Model-View-ViewModel)**：
+    *   为了治理表现层（Presentation Layer）的复杂性，我们在 UI 内部实现了 MVVM 模式。
+    *   **View (`GlimpseApp`)**：只负责 JSX 渲染，不包含任何业务逻辑，是纯粹的 "Dumb Component"。
+    *   **ViewModel (`useGlimpseModel`)**：作为 Controller，聚合所有底层 Hooks，管理所有 UI 状态（State）并暴露交互动作（Actions）。
+    *   *好处*：实现了 UI 渲染与交互逻辑的彻底解耦，极大提升了代码的可维护性。
+
+3.  **单一职责 (Single Responsibility)**：
     *   **Components**: 专注于 "如何显示" (Rendering)。
     *   **Hooks**: 专注于 "如何交互" (State & Effects)。
     *   **Utils**: 专注于 "纯计算" (Pure Logic)。
@@ -88,10 +96,9 @@ npm run build
 
 ## 📝 开发者笔记
 
-- **Custom Hooks 架构**：核心逻辑被抽离为可复用的 Hooks：
-  - `useSelection`：负责选区检测与触发图标定位。
-  - `useTranslationFlow`：管理翻译 API 调用与结果状态流转。
-  - `useDismissal`：封装滚动销毁与全局关闭逻辑，保持 UI 组件的纯净。
+- **Custom Hooks 与 MVVM**：
+  - **ViewModel (`useGlimpseModel`)**：这是表现层的大脑，它不处理具体逻辑，而是调度者。
+  - **Logic Hooks**：核心逻辑被抽离为单一职责的 Hooks (`useSelection`, `useTranslationFlow` 等)，供 ViewModel 调用。
 - **样式注入**：利用 Vite 的 `?inline` 模式将 CSS 编译为字符串，在运行时注入 Shadow Root，确保插件在任何网页环境下都能完美还原 macOS 质感而不受外部样式干扰。
 - **BEM 规范**：类名严格遵循 `glimpse-[block]__[element]--[modifier]`。例如弹窗的关闭状态使用 `glimpse-popup--closing` 修饰符。
 

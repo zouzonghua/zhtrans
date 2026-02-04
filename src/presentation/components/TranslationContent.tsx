@@ -3,7 +3,8 @@ import { Translation } from '@/domain/entities/Translation';
 import { SpeakIcon } from '../icons';
 
 interface ContentProps {
-  result: Translation;
+  result: Translation | null;
+  isLoading: boolean;
   isSpeaking: boolean;
   onSpeak: () => void;
 }
@@ -11,7 +12,24 @@ interface ContentProps {
 /**
  * 翻译内容组件：根据数据自动切换单词/句子布局
  */
-export const TranslationContent = ({ result, isSpeaking, onSpeak }: ContentProps) => {
+export const TranslationContent = ({ result, isLoading, isSpeaking, onSpeak }: ContentProps) => {
+  if (isLoading) {
+    return (
+      <div className="glimpse-popup__content">
+        <div className="glimpse-lang-header">
+          正在翻译...
+        </div>
+        <div className="glimpse-skeleton">
+          <div className="glimpse-skeleton__line" style={{ width: '60%' }}></div>
+          <div className="glimpse-skeleton__line" style={{ width: '80%' }}></div>
+          <div className="glimpse-skeleton__line" style={{ width: '40%' }}></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!result) return null;
+
   const isSentence = !result.dictionary || result.dictionary.length === 0;
 
   return (

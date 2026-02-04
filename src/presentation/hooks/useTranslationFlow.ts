@@ -26,11 +26,27 @@ export function useTranslationFlow(
     });
 
     const translate = async (text: string, rect: DOMRect) => {
-        setState(s => ({ ...s, isLoading: true }));
+        // 立即计算位置，以便显示 Loading 状态
+        // 初始假设 minimal content (no dictionary)
+        const initialPos = calculatePopupPosition(
+            rect,
+            window.innerWidth,
+            window.innerHeight,
+            false
+        );
+
+        setState(s => ({
+            ...s,
+            isLoading: true,
+            popupPos: initialPos,
+            result: null // Clear previous result
+        }));
+
         try {
             const translation = await onTranslate(text);
 
-            const pos = calculatePopupPosition(
+            // 翻译完成后重新计算位置（因为内容高度可能变化）
+            const finalPos = calculatePopupPosition(
                 rect,
                 window.innerWidth,
                 window.innerHeight,
@@ -40,7 +56,7 @@ export function useTranslationFlow(
             setState({
                 isLoading: false,
                 result: translation,
-                popupPos: pos,
+                popupPos: finalPos,
                 isSpeaking: false,
             });
         } catch (error) {
