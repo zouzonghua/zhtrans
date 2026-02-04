@@ -1,9 +1,12 @@
 import { h } from 'preact';
-import { useState, useEffect, useCallback, useRef } from 'preact/hooks';
+import { useCallback } from 'preact/hooks';
 import { Translation } from '@/domain/entities/Translation';
 import { Trigger } from './Trigger';
 import { Popup } from './Popup';
 import { TranslationContent } from './TranslationContent';
+import { useSelection } from '../hooks/useSelection';
+import { useTranslationFlow } from '../hooks/useTranslationFlow';
+import { useDismissal } from '../hooks/useDismissal';
 
 interface Props {
   onTranslate: (text: string) => Promise<Translation>;
@@ -13,102 +16,50 @@ interface Props {
 
 /**
  * Glimpse 主组件 (Orchestrator)
+ * 
+ * 职责：
+ * 1. 协调各个 Hook (Selection, Translation, Dismissal)
+ * 2. 组合 UI 组件 (Trigger, Popup)
+ * 3. 处理组件间的交互 (如点击 Trigger 触发翻译)
  */
 export const GlimpseApp = ({ onTranslate, onSpeak, onStopSpeak }: Props) => {
-  const [selection, setSelection] = useState<{ text: string, rect: DOMRect } | null>(null);
-  const [triggerPos, setTriggerPos] = useState<{ x: number, y: number } | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [result, setResult] = useState<Translation | null>(null);
-  const [popupPos, setPopupPos] = useState<{ x: number, y: number, isBottom: boolean, tailPos: number } | null>(null);
-  const [isSpeaking, setIsSpeaking] = useState(false);
-  const [isClosing, setIsClosing] = useState(false);
+  // 1. 选区管理
+  const { selection, triggerPos, setTriggerPos, clearSelection } = useSelection();
 
-  // 记录结果状态的引用，用于在滚动监听中判断是否需要关闭
-  const resultRef = useRef<Translation | null>(null);
-  useEffect(() => { resultRef.current = result; }, [result]);
+  // 2. 翻译流程管理
+  const {
+    isLoading,
+    result,
+    popupPos,
+    isSpeaking,
+    translate,
+    speak,
+    reset: resetTranslation
+  } = useTranslationFlow(onTranslate, onSpeak, onStopSpeak);
+
+  // 3. 关闭逻辑管理
+  // 当需要重置所有状态时（如点击外部、滚动偏移等），同时清理选区和翻译结果
+  const handleReset = useCallback(() => {
+    clearSelection();
+    resetTranslation();
+  }, [clearSelection, resetTranslation]);
+
+  const { isClosing } = useDismissal(result, handleReset);
 
   /**
-   * 渐变关闭逻辑
+   * 处理触发图标点击
+   * 执行翻译请求，并在请求开始时隐藏触发图标
    */
-  const fadeOutAndHide = useCallback(() => {
-    if (isClosing) return;
-    setIsClosing(true);
-    // 等待 CSS 动画完成 (200ms) 后彻底隐藏
-    setTimeout(() => {
-      hideAll();
-      setIsClosing(false);
-    }, 200);
-  }, [isClosing]);
-
-  const hideAll = useCallback(() => {
-    setSelection(null);
-    setTriggerPos(null);
-    setResult(null);
-    setPopupPos(null);
-    onStopSpeak();
-  }, [onStopSpeak]);
-
-  useEffect(() => {
-    const handleMouseUp = () => {
-      const sel = window.getSelection();
-      const text = sel?.toString().trim();
-
-      if (text && text.length > 0 && text.length < 500) {
-        const range = sel!.getRangeAt(0);
-        const rect = range.getBoundingClientRect();
-        setSelection({ text, rect });
-        setTriggerPos({ x: rect.right + 2, y: rect.top - 28 });
-      }
-    };
-
-    /**
-     * 滚动监听：当页面滚动且弹窗存在时，渐变关闭弹窗。
-     * 使用 capture 模式以确保能捕获到局部元素的滚动。
-     */
-    const handleScroll = () => {
-      if (resultRef.current) {
-        fadeOutAndHide();
-      } else {
-        // 如果只是图标阶段，直接隐藏即可
-        setTriggerPos(null);
-        setSelection(null);
-      }
-    };
-
-    document.addEventListener('mouseup', handleMouseUp);
-    window.addEventListener('scroll', handleScroll, { capture: true, passive: true });
-    
-    return () => {
-      document.removeEventListener('mouseup', handleMouseUp);
-      window.removeEventListener('scroll', handleScroll, { capture: true });
-    };
-  }, [fadeOutAndHide]);
-
   const handleTriggerClick = async (e: MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     if (!selection) return;
 
-    setIsLoading(true);
-    try {
-      const translation = await onTranslate(selection.text);
-      setResult(translation);
-      
-      const rect = selection.rect;
-      const centerX = rect.left + rect.width / 2;
-      const estimatedHeight = translation.dictionary ? 320 : 200;
-      const isBottom = window.innerHeight - rect.bottom > estimatedHeight;
-      const left = Math.max(10, Math.min(window.innerWidth - 330, centerX - 160));
-      const top = isBottom ? rect.bottom + 12 : rect.top - estimatedHeight - 20;
-      const tailPos = ((centerX - left) / 320) * 100;
+    // 清除触发图标，避免在加载时重复点击
+    setTriggerPos(null);
 
-      setPopupPos({ x: left, y: top, isBottom, tailPos });
-      setTriggerPos(null);
-    } catch (error) {
-      console.error("Glimpse Error:", error);
-    } finally {
-      setIsLoading(false);
-    }
+    // 发起翻译 (Hook 内部会自动计算弹窗位置)
+    await translate(selection.text, selection.rect);
   };
 
   const handleExternalClick = (type: 'dict' | 'wiki') => {
@@ -123,35 +74,27 @@ export const GlimpseApp = ({ onTranslate, onSpeak, onStopSpeak }: Props) => {
     window.open(url, '_blank');
   };
 
-  useEffect(() => {
-    (window as any).glimpseHideAll = fadeOutAndHide;
-  }, [fadeOutAndHide]);
-
   return (
     <div id="glimpse-wrapper">
       {triggerPos && (
-        <Trigger 
-          x={triggerPos.x} 
-          y={triggerPos.y} 
-          isLoading={isLoading} 
-          onMouseDown={handleTriggerClick} 
+        <Trigger
+          x={triggerPos.x}
+          y={triggerPos.y}
+          isLoading={isLoading}
+          onMouseDown={handleTriggerClick}
         />
       )}
 
       {result && popupPos && (
-        <Popup 
-          {...popupPos} 
+        <Popup
+          {...popupPos}
           className={isClosing ? 'glimpse-popup--closing' : ''}
           onExternalClick={handleExternalClick}
         >
-          <TranslationContent 
+          <TranslationContent
             result={result}
             isSpeaking={isSpeaking}
-            onSpeak={async () => {
-              setIsSpeaking(true);
-              try { await onSpeak(result.original); } 
-              finally { setIsSpeaking(false); }
-            }}
+            onSpeak={() => speak(result.original)}
           />
         </Popup>
       )}

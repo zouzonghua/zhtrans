@@ -17,9 +17,9 @@ export const TranslationContent = ({ result, isSpeaking, onSpeak }: ContentProps
   return (
     <div className="glimpse-popup__content">
       {/* 语言方向提示 */}
-      <div style="font-size:11px; color:var(--sub); margin-bottom:8px; display:flex; align-items:center; gap:8px;">
-        {/[\u4e00-\u9fa5]/.test(result.original) ? "中文-英文" : "简体中文-英文"} 
-        <div style="flex:1; height:0.5px; background:var(--line);"></div>
+      <div className="glimpse-lang-header">
+        {/[\u4e00-\u9fa5]/.test(result.original) ? "中文-英文" : "简体中文-英文"}
+        <div className="glimpse-separator"></div>
       </div>
 
       {isSentence ? (
@@ -31,7 +31,7 @@ export const TranslationContent = ({ result, isSpeaking, onSpeak }: ContentProps
             <SpeakButton active={isSpeaking} onClick={onSpeak} />
           </div>
           {result.phonetic && (
-            <div className="glimpse-popup__phonetic" style="margin-top:4px; font-style:italic">/ {result.phonetic} /</div>
+            <div className="glimpse-popup__phonetic glimpse-phonetic-sub">/ {result.phonetic} /</div>
           )}
         </Fragment>
       ) : (
@@ -46,7 +46,7 @@ export const TranslationContent = ({ result, isSpeaking, onSpeak }: ContentProps
               <div className="glimpse-popup__section-label">{d.pos}</div>
               {d.definitions.map((def, i) => (
                 <div className="glimpse-popup__def-row" key={i}>
-                  <span style="color:var(--sub);min-width:14px">
+                  <span className="glimpse-def-number">
                     {['①', '②', '③', '④', '⑤'][i] || i + 1}
                   </span>
                   <span>{def}</span>
@@ -61,8 +61,8 @@ export const TranslationContent = ({ result, isSpeaking, onSpeak }: ContentProps
 };
 
 const SpeakButton = ({ active, onClick }: { active: boolean, onClick: () => void }) => (
-  <button 
-    className={`glimpse-btn ${active ? 'glimpse-btn--speaking' : ''}`} 
+  <button
+    className={`glimpse-btn ${active ? 'glimpse-btn--speaking' : ''}`}
     onClick={onClick}
   >
     <SpeakIcon />

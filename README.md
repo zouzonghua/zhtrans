@@ -16,19 +16,57 @@ Glimpse 是一款追求极简主义、深度还原 macOS 原生“查找 (Look U
 - **标准 CSS + BEM**：严格遵循 BEM 命名规范，确保样式的隔离性与可维护性。
 - **现代技术栈**：TypeScript + Vite + Preact + Shadow DOM。
 
-## 🏗 架构与目录结构
+Glimpse 遵循 **整洁架构 (Clean Architecture)** 原则，将关注点分离，确保业务逻辑独立于 UI 和外部框架。
+
+### 目录结构说明
 
 ```text
 Glimpse/
 ├── src/
-│   ├── application/          # [应用层] 业务用例 (LookupUseCase)
-│   ├── domain/               # [核心层] 实体与接口契约
-│   ├── infrastructure/       # [基础设施层] 外部服务实现 (Google API, Web Speech)
-│   ├── main/                 # [入口层] 程序组装与挂载
-│   └── presentation/         # [表现层] Preact 组件化 UI
-│       ├── components/           # 原子化组件 (Trigger, Popup, Content)
-│       └── styles.css            # 标准 BEM 样式文件
+│   ├── domain/               # [核心层] 业务实体与接口契约
+│   │   ├── entities/         # 核心数据模型 (如 Translation, DictionaryEntry)
+│   │   └── repositories/     # 仓储接口定义 (定义 "如何获取数据" 的标准)
+│   │
+│   ├── application/          # [应用层] 业务用例 (Use Cases)
+│   │   └── usecases/         # 封装具体业务逻辑 (如 LookupUseCase: 协调查词与发音)
+│   │
+│   ├── infrastructure/       # [基础设施层] 外部服务实现
+│   │   ├── services/         # 第三方 API 集成 (GoogleTranslator, WebSpeech)
+│   │   └── repositories/     # 仓储接口的具体实现
+│   │
+│   ├── presentation/         # [表现层] UI 与交互逻辑
+│   │   ├── components/       # 原子化 UI 组件 (无状态或仅含 UI 状态)
+│   │   │   ├── GlimpseApp    # 根组件：协调器，组合各个 Hook 与子组件
+│   │   │   ├── Popup         # 翻译结果弹窗容器
+│   │   │   ├── Trigger       # 划词浮动图标
+│   │   │   └── ...
+│   │   ├── hooks/            # [逻辑复用] 抽离的交互逻辑 (Custom Hooks)
+│   │   │   ├── useSelection        # 负责监听选区与计算触发位置
+│   │   │   ├── useTranslationFlow  # 负责翻译 API 的调用状态流转
+│   │   │   └── useDismissal        # 负责滚动销毁与其他关闭策略
+│   │   ├── utils/            # 纯工具函数 (如几何位置计算 calculatePopupPosition)
+│   │   └── styles.css        # 基于 BEM 规范的样式表
+│   │
+│   └── main/                 # [入口层] 平台特定入口 (Chrome Extension)
+│       └── chrome/
+│           ├── content.ts    # Content Script: 依赖注入 (DI) 与 UI 挂载
+│           └── background.ts # Service Worker: 跨域代理与后台服务
 ```
+
+### 核心设计思想
+
+1.  **依赖倒置 (Dependency Inversion)**：
+    *   `presentation` 层不直接依赖 `infrastructure` 层。
+    *   两者都依赖于 `domain` 层定义的接口。
+    *   *好处*：更换翻译源（如从 Google 换到 Bing）只需新增一个 Service 实现，无需修改 UI 代码。
+
+2.  **单一职责 (Single Responsibility)**：
+    *   **Components**: 专注于 "如何显示" (Rendering)。
+    *   **Hooks**: 专注于 "如何交互" (State & Effects)。
+    *   **Utils**: 专注于 "纯计算" (Pure Logic)。
+
+3.  **UI 隔离 (UI Isolation)**：
+    *   使用 **Shadow DOM** 将插件 UI 封装在独立的 DOM 树中，彻底杜绝宿主页面 CSS 对插件样式的污染，同时也防止插件样式影响原网页。
 
 ## 🛠 开发与构建
 
@@ -50,7 +88,10 @@ npm run build
 
 ## 📝 开发者笔记
 
-- **滚动销毁逻辑**：在 `GlimpseApp.tsx` 中通过 `capture` 模式监听 `scroll` 事件。当检测到滚动且存在弹窗时，激活 `.glimpse-popup--closing` 动画类，并利用 `setTimeout` 在动画结束后（200ms）清理状态。
+- **Custom Hooks 架构**：核心逻辑被抽离为可复用的 Hooks：
+  - `useSelection`：负责选区检测与触发图标定位。
+  - `useTranslationFlow`：管理翻译 API 调用与结果状态流转。
+  - `useDismissal`：封装滚动销毁与全局关闭逻辑，保持 UI 组件的纯净。
 - **样式注入**：利用 Vite 的 `?inline` 模式将 CSS 编译为字符串，在运行时注入 Shadow Root，确保插件在任何网页环境下都能完美还原 macOS 质感而不受外部样式干扰。
 - **BEM 规范**：类名严格遵循 `glimpse-[block]__[element]--[modifier]`。例如弹窗的关闭状态使用 `glimpse-popup--closing` 修饰符。
 

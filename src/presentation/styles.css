@@ -222,3 +222,29 @@
   50% { transform: scale(1.15); opacity: 0.7; } 
   100% { transform: scale(1); opacity: 1; } 
 }
+
+/* Utilities */
+.glimpse-lang-header {
+  font-size: 11px;
+  color: var(--sub);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.glimpse-separator {
+  flex: 1;
+  height: 0.5px;
+  background: var(--line);
+}
+
+.glimpse-phonetic-sub {
+  margin-top: 4px;
+  font-style: italic;
+}
+
+.glimpse-def-number {
+  color: var(--sub);
+  min-width: 14px;
+}
