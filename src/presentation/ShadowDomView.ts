@@ -1,4 +1,6 @@
 import { Translation } from '@/domain/entities/Translation';
+import { SHADOW_STYLES } from './styles';
+import { ICONS } from './icons';
 
 /**
  * Shadow DOM 视图管理器 (Presentation Layer)
@@ -33,46 +35,7 @@ export class ShadowDomView {
 
   private injectStyles() {
     const style = document.createElement('style');
-    style.textContent = `
-      :host { 
-        --bg: rgba(238,238,238,0.72); 
-        --text: #1d1d1f; 
-        --sub: #6e6e73; 
-        --accent: #007aff; 
-        --line: rgba(0,0,0,0.08); 
-        --shadow: 0 20px 40px rgba(0,0,0,0.15); 
-        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif; 
-        -webkit-font-smoothing: antialiased;
-      }
-      @media (prefers-color-scheme: dark) { 
-        :host { --bg: rgba(45,45,45,0.8); --text: #f5f5f7; --sub: #a1a1a6; --line: rgba(255,255,255,0.12); } 
-      }
-      #trigger { position: fixed; width: 26px; height: 26px; background: white; border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.15); display: none; align-items: center; justify-content: center; z-index: 2147483647; cursor: pointer; border: 0.5px solid rgba(0,0,0,0.05); }
-      #trigger svg { width: 14px; height: 14px; fill: var(--accent); }
-      #popup { position: fixed; width: 320px; background: var(--bg); backdrop-filter: blur(40px) saturate(180%); border-radius: 12px; box-shadow: var(--shadow); display: none; flex-direction: column; z-index: 2147483647; animation: spring 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.1); border: 0.5px solid rgba(0,0,0,0.1); }
-      @keyframes spring { from { opacity:0; transform:scale(0.96) translateY(4px); } to { opacity:1; transform:scale(1) translateY(0); } }
-      .content { padding: 16px; max-height: 400px; overflow-y: auto; }
-      .header { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px; }
-      .word { font-size: 17px; font-weight: 700; color: var(--text); line-height: 1.3; flex: 1; word-break: break-word; }
-      .phonetic { font-size: 13px; color: var(--sub); font-family: "SF Pro Text", sans-serif; margin-top: 2px; }
-      .def-row { display: flex; gap: 6px; font-size: 14px; color: var(--text); margin-bottom: 6px; line-height: 1.5; word-break: break-word; }
-      .footer { height: 32px; background: rgba(0,0,0,0.03); border-top: 0.5px solid var(--line); display: flex; justify-content: space-around; align-items: center; font-size: 11px; color: var(--sub); border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; }
-      .footer-item { cursor: pointer; padding: 4px 12px; border-radius: 4px; transition: background 0.2s; }
-      .footer-item:hover { background: rgba(0,0,0,0.05); color: var(--text); }
-      .btn { cursor: pointer; border: none; background: none; padding: 2px; display: flex; align-items: center; }
-      .btn svg { width: 14px; height: 14px; fill: var(--accent); }
-      .speaking { animation: pulse 1.5s infinite; }
-      @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.15); opacity: 0.7; } 100% { transform: scale(1); opacity: 1; } }
-      .loading #loading-icon { display: flex !important; animation: rotate 1s linear infinite; }
-      .loading #search-icon { display: none !important; }
-      @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-      .tail { position: absolute; left: 50%; width: 16px; height: 8px; pointer-events: none; }
-      .tail-in { width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; }
-      .tail-btm { top: -8px; } .tail-btm .tail-in { border-bottom: 8px solid var(--bg); }
-      .tail-top { bottom: -8px; } .tail-top .tail-in { border-top: 8px solid var(--bg); }
-      .section-label { font-size: 11px; font-weight: 600; color: var(--sub); margin: 12px 0 6px 0; border-top: 0.5px solid var(--line); padding-top: 8px; text-transform: uppercase; }
-      .sentence-mode-original { font-size: 13px; color: var(--sub); margin-bottom: 12px; line-height: 1.4; font-style: italic; }
-    `;
+    style.textContent = SHADOW_STYLES;
     this.shadowRoot.appendChild(style);
   }
 
@@ -80,8 +43,8 @@ export class ShadowDomView {
     this.trigger = document.createElement('div');
     this.trigger.id = 'trigger';
     this.trigger.innerHTML = `
-      <svg id="search-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-      <svg id="loading-icon" style="display:none" viewBox="0 0 24 24"><path d="M12 4V2C6.48 2 2 6.48 2 12h2c0-4.41 3.59-8 8-8zm0 16v2c5.52 0 10-4.48 10-10h-2c0 4.41-3.59 8-8 8z"/></svg>
+      ${ICONS.SEARCH}
+      ${ICONS.LOADING}
     `;
     this.shadowRoot.appendChild(this.trigger);
 
@@ -160,7 +123,7 @@ export class ShadowDomView {
         <div class="section-label">翻译结果</div>
         <div class="header">
           <div class="word">${data.translated}</div>
-          <button class="btn" id="speak"><svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.26 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg></button>
+          <button class="btn" id="speak">${ICONS.SPEAK}</button>
         </div>
         ${data.phonetic ? `<div class="phonetic" style="margin-top:4px; font-style:italic">/ ${data.phonetic} /</div>` : ''}
       `;
@@ -175,7 +138,7 @@ export class ShadowDomView {
         <div class="header">
           <span class="word">${data.original}</span>
           ${data.phonetic ? `<span class="phonetic">| ${data.phonetic} |</span>` : ''}
-          <button class="btn" id="speak"><svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.26 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg></button>
+          <button class="btn" id="speak">${ICONS.SPEAK}</button>
         </div>
         ${definitions}
       `;
