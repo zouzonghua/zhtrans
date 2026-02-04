@@ -1,0 +1,67 @@
+import { Translation, DictionaryEntry } from '@/domain/entities/Translation';
+import { ITranslator } from '@/domain/interfaces/ITranslator';
+
+/**
+ * 谷歌翻译适配器 (Infrastructure Layer)
+ * 
+ * 职责：
+ * 1. 实现 Domain 层定义的 ITranslator 接口。
+ * 2. 处理与外部 Google Translate API 的具体通信细节。
+ * 3. 负责将外部原始、复杂的 JSON 结构解析为 Domain 层通用的实体。
+ */
+export class GoogleTranslator implements ITranslator {
+  async translate(text: string): Promise<Translation> {
+    const isChinese = /[\u4e00-\u9fa5]/.test(text);
+    const targetLang = isChinese ? 'en' : 'zh-CN';
+    
+    if (typeof chrome === 'undefined' || !chrome.runtime) {
+      throw new Error("Extension context invalidated. Please refresh the page.");
+    }
+
+    return new Promise((resolve, reject) => {
+      chrome.runtime.sendMessage({ action: "translate", text, targetLang }, (response) => {
+        if (chrome.runtime.lastError) {
+          return reject(new Error(chrome.runtime.lastError.message));
+        }
+        
+        if (!response.success) {
+          return reject(new Error(response.error));
+        }
+
+        const { data } = response;
+        
+        // --- 数据解析 (Adapter Logic) ---
+        
+        // 1. 提取基本翻译结果 (支持多段合并)
+        const translation = data[0].map((item: any) => item[0]).join('').trim();
+        
+        // 2. 智能提取读音 (Phonetic / Transliteration)
+        let phonetic = undefined;
+        const sentenceData = data[0];
+        // 读音通常在第一个数组的最后一项
+        const lastItem = sentenceData[sentenceData.length - 1];
+        if (Array.isArray(lastItem)) {
+          phonetic = lastItem[3] || lastItem[2];
+        }
+
+        // 3. 提取词典条目 (只有单个单词才会有此字段)
+        let dictionary: DictionaryEntry[] = [];
+        if (data[1] && Array.isArray(data[1])) {
+          dictionary = data[1].map((entry: any) => ({
+            pos: entry[0],
+            definitions: entry[1].slice(0, 3)
+          }));
+        }
+
+        resolve({
+          original: text,
+          translated: translation,
+          phonetic: typeof phonetic === 'string' ? phonetic : undefined,
+          dictionary: dictionary.length > 0 ? dictionary : undefined,
+          srcLang: data[2],
+          targetLang
+        });
+      });
+    });
+  }
+}
