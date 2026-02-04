@@ -16,7 +16,7 @@ Glimpse 是一款追求极简主义、深度还原 macOS 原生“查找 (Look U
 - **标准 CSS + BEM**：严格遵循 BEM 命名规范，确保样式的隔离性与可维护性。
 - **现代技术栈**：TypeScript + Vite + Preact + Shadow DOM。
 
-Glimpse 遵循 **整洁架构 (Clean Architecture)** 原则，将关注点分离，确保业务逻辑独立于 UI 和外部框架。
+Glimpse 遵循 **整洁架构 (Clean Architecture)** + **MVVM** 原则，将关注点分离，确保业务逻辑独立于 UI 和外部框架。
 
 ### 目录结构说明
 
@@ -30,22 +30,22 @@ Glimpse/
 │   ├── application/          # [应用层] 业务用例 (Use Cases)
 │   │   └── usecases/         # 封装具体业务逻辑 (如 LookupUseCase: 协调查词与发音)
 │   │
+│   ├── adapters/             # [适配器层] 框架无关的逻辑适配
+│   │   └── GlimpseViewModel  # [ViewModel] 纯类，管理状态与交互 (无 UI 框架依赖)
+│   │
 │   ├── infrastructure/       # [基础设施层] 外部服务实现
 │   │   ├── services/         # 第三方 API 集成 (GoogleTranslator, WebSpeech)
 │   │   └── repositories/     # 仓储接口的具体实现
 │   │
-│   ├── presentation/         # [表现层] UI 与交互逻辑
-│   │   ├── components/       # 原子化 UI 组件 (无状态 View，仅负责渲染)
+│   ├── presentation/         # [表现层] UI 与交互逻辑 (Preact)
+│   │   ├── components/       # 原子化 UI 组件 (无状态 View)
 │   │   │   ├── GlimpseApp    # 根组件：纯 UI (Dumb Component)
 │   │   │   ├── Popup         # 翻译结果弹窗容器
 │   │   │   ├── Trigger       # 划词浮动图标
 │   │   │   └── ...
-│   │   ├── hooks/            # [ViewModel & Logic] 交互逻辑层
-│   │   │   ├── useGlimpseModel     # [ViewModel] 聚合所有逻辑，暴露 State & Actions
-│   │   │   ├── useSelection        # [Logic] 负责监听选区与计算触发位置
-│   │   │   ├── useTranslationFlow  # [Logic] 管理翻译 API 调用与结果状态流转
-│   │   │   ├── useDismissal        # [Logic] 负责滚动销毁与其他关闭策略
-│   │   │   └── useShortcutTrigger  # [Logic] 全局快捷键监听
+│   │   ├── hooks/            # [UI 适配器] 连接 React 与 ViewModel
+│   │   │   ├── useGlimpseModel     # [Binder] 实例化 VM 并绑定 React 响应式状态
+│   │   │   └── useDismissal        # [Helper] 辅助 DOM 操作 (如滚动监听)
 │   │   ├── utils/            # 纯工具函数 (如几何位置计算 calculatePopupPosition)
 │   │   └── styles.css        # 基于 BEM 规范的样式表
 │   │
@@ -63,10 +63,11 @@ Glimpse/
     *   *好处*：更换翻译源（如从 Google 换到 Bing）只需新增一个 Service 实现，无需修改 UI 代码。
 
 2.  **MVVM 模式 (Model-View-ViewModel)**：
-    *   为了治理表现层（Presentation Layer）的复杂性，我们在 UI 内部实现了 MVVM 模式。
-    *   **View (`GlimpseApp`)**：只负责 JSX 渲染，不包含任何业务逻辑，是纯粹的 "Dumb Component"。
-    *   **ViewModel (`useGlimpseModel`)**：作为 Controller，聚合所有底层 Hooks，管理所有 UI 状态（State）并暴露交互动作（Actions）。
-    *   *好处*：实现了 UI 渲染与交互逻辑的彻底解耦，极大提升了代码的可维护性。
+    *   为了彻底解耦 UI 框架与业务逻辑，我们采用了**框架无关**的 MVVM 实现。
+    *   **ViewModel (`GlimpseViewModel`)**：位于 `adapters` 层。一个纯 TypeScript 类，不依赖 React/Vue。管理所有状态与交互逻辑。
+    *   **Binder (`useGlimpseModel`)**：位于 `presentation` 层。一个 React Hook，仅负责将 VM 的状态绑定到 React 视图。
+    *   **View (`GlimpseApp`)**：完全无脑的 UI 渲染组件。
+    *   *好处*：核心逻辑可以在不同 UI 框架间 100% 复用 (如迁移到 Vue 或 Flutter)。
 
 3.  **单一职责 (Single Responsibility)**：
     *   **Components**: 专注于 "如何显示" (Rendering)。
@@ -96,9 +97,8 @@ npm run build
 
 ## 📝 开发者笔记
 
-- **Custom Hooks 与 MVVM**：
-  - **ViewModel (`useGlimpseModel`)**：这是表现层的大脑，它不处理具体逻辑，而是调度者。
-  - **Logic Hooks**：核心逻辑被抽离为单一职责的 Hooks (`useSelection`, `useTranslationFlow` 等)，供 ViewModel 调用。
+- **Pure Class 架构**：所有的交互逻辑（选区计算、翻译流转、快捷键）都封装在 `GlimpseViewModel` 纯类中，便于单独测试与移植。
+- **UI 绑定 (Binding)**：`useGlimpseModel` hook 充当了 "胶水" 的角色，它通过订阅 (Subject-Observer) 模式监听 VM 的变化并触发组件重渲染。
 - **样式注入**：利用 Vite 的 `?inline` 模式将 CSS 编译为字符串，在运行时注入 Shadow Root，确保插件在任何网页环境下都能完美还原 macOS 质感而不受外部样式干扰。
 - **BEM 规范**：类名严格遵循 `glimpse-[block]__[element]--[modifier]`。例如弹窗的关闭状态使用 `glimpse-popup--closing` 修饰符。
 
