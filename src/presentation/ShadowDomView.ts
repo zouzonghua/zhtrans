@@ -11,10 +11,14 @@ import { Translation } from '@/domain/entities/Translation';
 export class ShadowDomView {
   private container: HTMLDivElement;
   private shadowRoot: ShadowRoot;
-  private trigger: HTMLElement;
-  private popup: HTMLElement;
+  private trigger!: HTMLElement;
+  private popup!: HTMLElement;
   private speakBtn: HTMLElement | null = null;
-  
+
+  // State for current selection
+  private currentText: string = "";
+  private currentRect: DOMRect | null = null;
+
   private onSpeakClick: (() => void) | null = null;
 
   constructor() {
@@ -22,7 +26,7 @@ export class ShadowDomView {
     this.container.id = 'glimpse-host';
     document.body.appendChild(this.container);
     this.shadowRoot = this.container.attachShadow({ mode: 'closed' });
-    
+
     this.injectStyles();
     this.createElements();
   }
@@ -59,6 +63,9 @@ export class ShadowDomView {
       .btn svg { width: 14px; height: 14px; fill: var(--accent); }
       .speaking { animation: pulse 1.5s infinite; }
       @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.15); opacity: 0.7; } 100% { transform: scale(1); opacity: 1; } }
+      .loading #loading-icon { display: flex !important; animation: rotate 1s linear infinite; }
+      .loading #search-icon { display: none !important; }
+      @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
       .tail { position: absolute; left: 50%; width: 16px; height: 8px; pointer-events: none; }
       .tail-in { width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; }
       .tail-btm { top: -8px; } .tail-btm .tail-in { border-bottom: 8px solid var(--bg); }
@@ -72,7 +79,10 @@ export class ShadowDomView {
   private createElements() {
     this.trigger = document.createElement('div');
     this.trigger.id = 'trigger';
-    this.trigger.innerHTML = `<svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>`;
+    this.trigger.innerHTML = `
+      <svg id="search-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+      <svg id="loading-icon" style="display:none" viewBox="0 0 24 24"><path d="M12 4V2C6.48 2 2 6.48 2 12h2c0-4.41 3.59-8 8-8zm0 16v2c5.52 0 10-4.48 10-10h-2c0 4.41-3.59 8-8 8z"/></svg>
+    `;
     this.shadowRoot.appendChild(this.trigger);
 
     this.popup = document.createElement('div');
@@ -88,6 +98,15 @@ export class ShadowDomView {
 
   public hideTrigger() {
     this.trigger.style.display = 'none';
+    this.toggleTriggerLoading(false); // 隐藏时确保重置状态
+  }
+
+  public toggleTriggerLoading(isLoading: boolean) {
+    if (isLoading) {
+      this.trigger.classList.add('loading');
+    } else {
+      this.trigger.classList.remove('loading');
+    }
   }
 
   public showPopup(rect: DOMRect, result: Translation) {
@@ -103,7 +122,7 @@ export class ShadowDomView {
     this.popup.style.left = `${left}px`;
     this.popup.style.top = `${top}px`;
     this.popup.style.display = 'flex';
-    
+
     this.renderContent(result, isBottom, tailPercent);
   }
 
@@ -126,7 +145,10 @@ export class ShadowDomView {
    * 核心渲染逻辑：根据是否有词典条目自动切换布局模式
    */
   private renderContent(data: Translation, isBottom: boolean, tailPos: number) {
-    const sectionTitle = data.displayTitle || "查词结果";
+    // Logic moved from UseCase: Determine display title based on content
+    const isChinese = /[\u4e00-\u9fa5]/.test(data.original);
+    const sectionTitle = isChinese ? "中文-英文" : "简体中文-英文";
+
     const isSentence = !data.dictionary || data.dictionary.length === 0;
 
     let bodyHtml = "";
@@ -144,9 +166,9 @@ export class ShadowDomView {
       `;
     } else {
       // 单词词典模式 UI
-      const definitions = data.dictionary!.map(d => 
+      const definitions = data.dictionary!.map(d =>
         `<div class="section-label">${d.pos}</div>` +
-        d.definitions.map((def, i) => `<div class="def-row"><span style="color:var(--sub);min-width:14px">${['①','②','③','④','⑤'][i] || i+1}</span><span>${def}</span></div>`).join('')
+        d.definitions.map((def, i) => `<div class="def-row"><span style="color:var(--sub);min-width:14px">${['①', '②', '③', '④', '⑤'][i] || i + 1}</span><span>${def}</span></div>`).join('')
       ).join('');
 
       bodyHtml = `
@@ -172,7 +194,7 @@ export class ShadowDomView {
         <div class="footer-item" id="tab-wiki">维基百科</div>
       </div>
     `;
-    
+
     // 重新绑定事件
     this.speakBtn = this.shadowRoot.getElementById('speak');
     this.speakBtn?.addEventListener('click', () => this.onSpeakClick && this.onSpeakClick());
@@ -188,7 +210,22 @@ export class ShadowDomView {
       window.open(url, '_blank');
     });
   }
-  
+
   public get triggerElement() { return this.trigger; }
   public get containerElement() { return this.container; }
+
+  // --- State Management ---
+
+  public setSelectionState(text: string, rect: DOMRect) {
+    this.currentText = text;
+    this.currentRect = rect;
+  }
+
+  public getSelectionText(): string {
+    return this.currentText;
+  }
+
+  public getSelectionRect(): DOMRect | null {
+    return this.currentRect;
+  }
 }

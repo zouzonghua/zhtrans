@@ -17,5 +17,4 @@ export interface Translation {
   dictionary?: DictionaryEntry[]; // 详细释义
   srcLang: string;     // 源语种
   targetLang: string;  // 目标语种
-  displayTitle?: string; // 表现层所需的标题 (新增字段，由用例层决定内容)
 }

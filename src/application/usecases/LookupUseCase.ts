@@ -1,5 +1,6 @@
 import { ITranslator } from '@/domain/interfaces/ITranslator';
 import { ITextToSpeech } from '@/domain/interfaces/ITextToSpeech';
+import { ITranslationRepository } from '@/domain/interfaces/ITranslationRepository';
 
 /**
  * 查词用例 (Use Case)
@@ -8,28 +9,42 @@ import { ITextToSpeech } from '@/domain/interfaces/ITextToSpeech';
 export class LookupUseCase {
   constructor(
     private translator: ITranslator,
-    private tts: ITextToSpeech
-  ) {}
+    private tts: ITextToSpeech,
+    private repository?: ITranslationRepository // 选填，支持无缓存模式
+  ) { }
 
   async execute(text: string) {
     if (!text || text.trim().length === 0) {
       throw new Error("Text is empty");
     }
-    
-    // 执行翻译
-    const result = await this.translator.translate(text);
-    
-    // --- 业务逻辑：决定展示标题 ---
-    // 在整洁架构中，这种根据状态决定展示文案的逻辑应放在用例层或领域层
-    const isChinese = /[\u4e00-\u9fa5]/.test(result.original);
-    result.displayTitle = isChinese ? "中文-英文" : "简体中文-英文";
+
+    const trimmedText = text.trim();
+
+    // 1. 尝试从仓库获取缓存
+    if (this.repository) {
+      const cached = await this.repository.get(trimmedText);
+      console.log(`[Glimpse] Cache hit: "${trimmedText}"`);
+      if (cached) {
+        console.log(`[Glimpse] Cache hit: "${trimmedText}"`);
+        return cached;
+      }
+    }
+
+    // 2. 缓存未击中，执行网络请求翻译
+    const result = await this.translator.translate(trimmedText);
+    console.log(`[Glimpse] Cache miss: "${trimmedText}"`);
+
+    // 4. 将结果持久化到仓库
+    if (this.repository) {
+      await this.repository.save(result);
+    }
 
     return result;
   }
 
-  playAudio(text: string) {
+  async playAudio(text: string): Promise<void> {
     this.tts.stop();
-    this.tts.speak(text);
+    return this.tts.speak(text);
   }
 
   stopAudio() {

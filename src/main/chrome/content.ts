@@ -1,6 +1,7 @@
 import { LookupUseCase } from '@/application/usecases/LookupUseCase';
 import { GoogleTranslator } from '@/infrastructure/services/GoogleTranslator';
 import { WebSpeechService } from '@/infrastructure/services/WebSpeechService';
+import { ChromeTranslationRepository } from '@/infrastructure/repositories/ChromeTranslationRepository';
 import { ShadowDomView } from '@/presentation/ShadowDomView';
 
 /**
@@ -11,8 +12,9 @@ import { ShadowDomView } from '@/presentation/ShadowDomView';
 // 1. 初始化依赖 (Dependency Injection)
 const translator = new GoogleTranslator();
 const tts = new WebSpeechService();
+const repository = new ChromeTranslationRepository();
+const useCase = new LookupUseCase(translator, tts, repository);
 const view = new ShadowDomView();
-const useCase = new LookupUseCase(translator, tts);
 
 // 2. 监听全局鼠标抬起事件，处理选词
 document.addEventListener('mouseup', (e) => {
@@ -23,13 +25,12 @@ document.addEventListener('mouseup', (e) => {
   if (text && text.length > 0 && text.length < 500) {
     const range = selection!.getRangeAt(0);
     const rect = range.getBoundingClientRect();
-    
+
     // 在选区右上方显示小图标
     view.setTriggerPosition(rect.right + 2, rect.top - 28);
-    
-    // 临时存储当前选词信息
-    (view.triggerElement as any)._currentText = text;
-    (view.triggerElement as any)._currentRect = rect;
+
+    // 临时存储当前选词信息 (Type-safe State Management)
+    view.setSelectionState(text, rect);
   } else {
     // 点击非插件区域时隐藏 UI 并停止播放
     if (!view.containerElement.contains(e.target as Node)) {
@@ -44,26 +45,35 @@ document.addEventListener('mouseup', (e) => {
 view.triggerElement.addEventListener('mousedown', async (e) => {
   e.preventDefault();
   e.stopPropagation();
-  
-  view.hideTrigger();
-  const text = (view.triggerElement as any)._currentText;
-  const rect = (view.triggerElement as any)._currentRect;
+
+  const text = view.getSelectionText();
+  const rect = view.getSelectionRect();
+
+  if (!text || !rect) return;
 
   try {
+    // 开启加载状态，此时暂不隐藏图标
+    view.toggleTriggerLoading(true);
+
     // 执行业务用例
     const result = await useCase.execute(text);
-    
+
+    // 成功后隐藏图标并恢复状态
+    view.hideTrigger();
+
     // 渲染结果弹窗
     view.showPopup(rect, result);
-    
+
     // 设置发音按钮逻辑
-    view.setSpeakHandler(() => {
+    view.setSpeakHandler(async () => {
       view.toggleSpeakAnimation(true);
-      useCase.playAudio(text);
-      // 模拟播放时长后取消动画（实际可通过语音服务事件回调更精准控制）
-      setTimeout(() => view.toggleSpeakAnimation(false), 2000); 
+      try {
+        await useCase.playAudio(text);
+      } finally {
+        view.toggleSpeakAnimation(false);
+      }
     });
-    
+
   } catch (error) {
     console.error("Glimpse Error:", error);
   }
