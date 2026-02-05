@@ -23,6 +23,7 @@ export const TranslationContent = ({ result, isLoading, isSpeaking, onSpeak }: C
           <div className="glimpse-skeleton__line" style={{ width: '60%' }}></div>
           <div className="glimpse-skeleton__line" style={{ width: '80%' }}></div>
           <div className="glimpse-skeleton__line" style={{ width: '40%' }}></div>
+          <div className="glimpse-skeleton__line" style={{ width: '70%' }}></div>
         </div>
       </div>
     );
@@ -31,6 +32,12 @@ export const TranslationContent = ({ result, isLoading, isSpeaking, onSpeak }: C
   if (!result) return null;
 
   const isSentence = !result.dictionary || result.dictionary.length === 0;
+
+  // 简单的长句检测：超过 50 个字符或包含换行
+  const isLongText = result.original.length > 50 || result.original.includes('\n');
+  // 只有当不是长句时才显示音标
+  // (用户反馈：长句显示的通常是拼音而非所需的音标，且占据空间)
+  const showPhonetic = !isLongText && !!result.phonetic;
 
   return (
     <div className="glimpse-popup__content">
@@ -48,7 +55,7 @@ export const TranslationContent = ({ result, isLoading, isSpeaking, onSpeak }: C
             <div className="glimpse-popup__word">{result.translated}</div>
             <SpeakButton active={isSpeaking} onClick={onSpeak} />
           </div>
-          {result.phonetic && (
+          {showPhonetic && (
             <div className="glimpse-popup__phonetic glimpse-phonetic-sub">/ {result.phonetic} /</div>
           )}
         </Fragment>
@@ -56,7 +63,7 @@ export const TranslationContent = ({ result, isLoading, isSpeaking, onSpeak }: C
         <Fragment>
           <div className="glimpse-popup__header">
             <span className="glimpse-popup__word">{result.original}</span>
-            {result.phonetic && <span className="glimpse-popup__phonetic">| {result.phonetic} |</span>}
+            {showPhonetic && <span className="glimpse-popup__phonetic">| {result.phonetic} |</span>}
             <SpeakButton active={isSpeaking} onClick={onSpeak} />
           </div>
           {result.dictionary!.map(d => (

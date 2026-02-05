@@ -13,7 +13,7 @@ export class GoogleTranslator implements ITranslator {
   async translate(text: string): Promise<Translation> {
     const isChinese = /[\u4e00-\u9fa5]/.test(text);
     const targetLang = isChinese ? 'en' : 'zh-CN';
-    
+
     if (typeof chrome === 'undefined' || !chrome.runtime) {
       throw new Error("Extension context invalidated. Please refresh the page.");
     }
@@ -23,25 +23,38 @@ export class GoogleTranslator implements ITranslator {
         if (chrome.runtime.lastError) {
           return reject(new Error(chrome.runtime.lastError.message));
         }
-        
+
         if (!response.success) {
           return reject(new Error(response.error));
         }
 
         const { data } = response;
-        
+
         // --- 数据解析 (Adapter Logic) ---
-        
+
         // 1. 提取基本翻译结果 (支持多段合并)
         const translation = data[0].map((item: any) => item[0]).join('').trim();
-        
+
         // 2. 智能提取读音 (Phonetic / Transliteration)
         let phonetic = undefined;
         const sentenceData = data[0];
-        // 读音通常在第一个数组的最后一项
+        // 读音通常在第一个数组的最后一项，且特征是 item[1] 为 null (区别于翻译段落)
         const lastItem = sentenceData[sentenceData.length - 1];
-        if (Array.isArray(lastItem)) {
-          phonetic = lastItem[3] || lastItem[2];
+
+        if (Array.isArray(lastItem) && lastItem[1] === null) {
+          // 策略：始终优先显示英文音标
+          if (targetLang === 'en') {
+            // 译文是英文 -> 取目标语读音 (Index 0)
+            phonetic = lastItem[0];
+          } else {
+            // 原文是英文 -> 取源语读音 (Index 3)
+            phonetic = lastItem[3];
+          }
+
+          // Fallback: 如果首选语言没有音标，尝试获取存在的那个 (比如 index 3 没数据单 index 2/0 有)
+          if (!phonetic) {
+            phonetic = lastItem[3] || lastItem[2] || lastItem[0];
+          }
         }
 
         // 3. 提取词典条目 (只有单个单词才会有此字段)
