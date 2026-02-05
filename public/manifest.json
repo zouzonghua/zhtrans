@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "LinxTrans",
-  "version": "2.2.0",
+  "version": "1.0.0",
   "description": "Clean Architecture implementation of LinxTrans.",
   "background": {
     "service_worker": "background.js"
