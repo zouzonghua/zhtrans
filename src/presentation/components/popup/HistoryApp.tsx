@@ -15,6 +15,7 @@ export const HistoryApp = () => {
     const [history, setHistory] = useState<Translation[]>([]);
     const [loading, setLoading] = useState(true);
     const [speakingItem, setSpeakingItem] = useState<string | null>(null);
+    const [searchQuery, setSearchQuery] = useState('');
     const repo = new ChromeTranslationRepository();
     const tts = new WebSpeechService();
 
@@ -54,20 +55,36 @@ export const HistoryApp = () => {
             .catch(() => setSpeakingItem(null));
     };
 
+    const filteredHistory = history.filter(item => {
+        const query = searchQuery.toLowerCase();
+        return item.original.toLowerCase().includes(query) ||
+            item.translated.toLowerCase().includes(query);
+    });
+
     return (
         <div className="linxtrans-history">
             <header className="linxtrans-history__header">
                 <h2>Translation History</h2>
+                <div className="linxtrans-history__search">
+                    <input
+                        type="text"
+                        placeholder="Search..."
+                        value={searchQuery}
+                        onInput={(e) => setSearchQuery(e.currentTarget.value)}
+                    />
+                </div>
             </header>
 
             <div className="linxtrans-history__content">
                 {loading ? (
                     <div className="linxtrans-history__empty">Loading...</div>
-                ) : history.length === 0 ? (
-                    <div className="linxtrans-history__empty">No history found.</div>
+                ) : filteredHistory.length === 0 ? (
+                    <div className="linxtrans-history__empty">
+                        {searchQuery ? 'No matching history found.' : 'No history found.'}
+                    </div>
                 ) : (
                     <ul className="linxtrans-history__list">
-                        {history.map((item, index) => (
+                        {filteredHistory.map((item, index) => (
                             <li key={index} className="linxtrans-history__item">
                                 <div className="linxtrans-history__main">
                                     <div className="linxtrans-history__original">
