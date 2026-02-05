@@ -113,17 +113,55 @@ export class GlimpseViewModel {
 
     // 2. 全局键盘监听 (源自 useShortcutTrigger)
     private handleKeyDown = (event: KeyboardEvent) => {
+        // Option+T: 翻译选区 (Legacy)
         if (event.altKey && !event.metaKey && !event.ctrlKey && event.code === 'KeyT') {
-            const sel = window.getSelection();
-            if (sel && sel.toString().trim().length > 0) {
-                const text = sel.toString().trim();
-                const rect = sel.getRangeAt(0).getBoundingClientRect();
+            this.handleTranslateShortcut();
+        }
 
-                this.setState({ triggerPos: null }); // 隐藏触发图标
-                this.translate(text, rect);
-            }
+        // Option+S: 翻译并朗读 / 播放控制
+        if (event.altKey && !event.metaKey && !event.ctrlKey && event.code === 'KeyS') {
+            this.handleSpeakShortcut();
         }
     };
+
+    private handleTranslateShortcut() {
+        const sel = window.getSelection();
+        if (sel && sel.toString().trim().length > 0) {
+            const text = sel.toString().trim();
+            const rect = sel.getRangeAt(0).getBoundingClientRect();
+
+            this.setState({ triggerPos: null }); // 隐藏触发图标
+            this.translate(text, rect);
+        }
+    }
+
+    private handleSpeakShortcut() {
+        // 场景 1: Popup 已打开 -> 切换播放/暂停
+        if (this.state.result) {
+            if (this.state.isSpeaking) {
+                this.stopSpeak();
+            } else {
+                this.speak();
+            }
+            return;
+        }
+
+        // 场景 2: Popup 未打开 -> 翻译选区并自动播放
+        const sel = window.getSelection();
+        if (sel && sel.toString().trim().length > 0) {
+            const text = sel.toString().trim();
+            const rect = sel.getRangeAt(0).getBoundingClientRect();
+
+            this.setState({ triggerPos: null });
+            this.translate(text, rect)
+                .then(() => {
+                    // 翻译成功后自动播放
+                    if (this.state.result) {
+                        this.speak();
+                    }
+                });
+        }
+    }
 
     // 3. 关闭逻辑 (点击外部)
     private handleMouseDown = (e: MouseEvent) => {
@@ -198,6 +236,13 @@ export class GlimpseViewModel {
             this.useCase.playAudio(this.state.result.original)
                 .then(() => this.setState({ isSpeaking: false }))
                 .catch(() => this.setState({ isSpeaking: false }));
+        }
+    }
+
+    public stopSpeak = () => {
+        if (this.state.isSpeaking) {
+            this.useCase.stopAudio();
+            this.setState({ isSpeaking: false });
         }
     }
 
