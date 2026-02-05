@@ -7,10 +7,13 @@ import { ANIMATION_DURATION_MS } from '../constants';
  */
 export function useDismissal(
     result: Translation | null,
-    onReset: () => void
+    onReset: () => void,
+    triggerPos: { x: number; y: number } | null
 ) {
     const [isClosing, setIsClosing] = useState(false);
     const resultRef = useRef<Translation | null>(null);
+    // Ref to track the timeout so we can clear it
+    const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     // 同步 result 到 ref 以便在 event listener 中获取最新值
     useEffect(() => {
@@ -21,11 +24,22 @@ export function useDismissal(
         if (isClosing) return;
         setIsClosing(true);
 
-        setTimeout(() => {
+        timeoutRef.current = setTimeout(() => {
             onReset();
             setIsClosing(false);
+            timeoutRef.current = null;
         }, ANIMATION_DURATION_MS);
     }, [isClosing, onReset]);
+
+    // Cleanup timeout on unmount or if state changes
+    useEffect(() => {
+        // If trigger appears or result appears, cancel any pending close
+        if ((triggerPos || result) && timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+            timeoutRef.current = null;
+            setIsClosing(false);
+        }
+    }, [triggerPos, result]);
 
     useEffect(() => {
         const handleScroll = () => {

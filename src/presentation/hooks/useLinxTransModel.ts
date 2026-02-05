@@ -65,7 +65,7 @@ export function useLinxTransModel({ onTranslate, onSpeak, onStopSpeak }: UseLinx
     // 未来可以将这部分逻辑也移入 ViewModel 的 mount/unmount 中监听。
 
     // 我们传入 viewModel.reset 作为回调，当触发关闭条件（如滚动）时重置 VM 状态。
-    const { isClosing } = useDismissal(state.result, viewModel.reset);
+    const { isClosing } = useDismissal(state.result, viewModel.reset, state.triggerPos);
 
     // 组合 VM 的状态与本地 UI 状态 (动画状态 isClosing)
     // Note: `isClosing` is purely cosmetic state for animation, acceptable to stay in View layer
