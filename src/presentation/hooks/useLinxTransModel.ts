@@ -1,10 +1,10 @@
 import { useEffect, useState, useMemo } from 'preact/hooks';
 import { Translation } from '@/domain/entities/Translation';
-import { GlimpseViewModel, GlimpseState } from '@/adapters/GlimpseViewModel';
+import { LinxTransViewModel, LinxTransState } from '@/adapters/LinxTransViewModel';
 import { LookupUseCase } from '@/application/usecases/LookupUseCase';
 import { useDismissal } from './useDismissal';
 
-interface UseGlimpseModelProps {
+interface UseLinxTransModelProps {
     /** 翻译回调 */
     onTranslate: (text: string) => Promise<Translation>;
     /** 朗读回调 */
@@ -14,19 +14,19 @@ interface UseGlimpseModelProps {
 }
 
 /**
- * Glimpse ViewModel Binder (Preact 适配器)
+ * LinxTrans ViewModel Binder (Preact 适配器)
  * 
  * 职责：
- * 1. 实例化纯 TypeScript 的 ViewModel (GlimpseViewModel)
+ * 1. 实例化纯 TypeScript 的 ViewModel (LinxTransViewModel)
  * 2. 将 ViewModel 的状态桥接到 Preact 的响应式系统 (State Binding)
  * 3. 管理生命周期 (Mount/Unmount)
  */
-export function useGlimpseModel({ onTranslate, onSpeak, onStopSpeak }: UseGlimpseModelProps) {
+export function useLinxTransModel({ onTranslate, onSpeak, onStopSpeak }: UseLinxTransModelProps) {
     // 1. 实例化纯 ViewModel (保持引用稳定)
     // 在真正的依赖注入(DI)系统中，这里通常通过 useDI() 或 Context 获取
     const viewModel = useMemo(() => {
         // 临时方案：我们在构造 ViewModel 时创建一个 "代理 UseCase"。
-        // 理想情况下，GlimpseViewModel 应该通过依赖注入 (DI) 接收一个完整的 LookupUseCase。
+        // 理想情况下，LinxTransViewModel 应该通过依赖注入 (DI) 接收一个完整的 LookupUseCase。
 
         // 这里的 onTranslate prop 实际上直接执行了用例逻辑 (在 content.ts 中定义)，
         // 所以我们将其包装成 UseCase 接口的形式。
@@ -36,11 +36,11 @@ export function useGlimpseModel({ onTranslate, onSpeak, onStopSpeak }: UseGlimps
             stopAudio: onStopSpeak
         } as unknown as LookupUseCase;
 
-        return new GlimpseViewModel(useCaseProxy);
+        return new LinxTransViewModel(useCaseProxy);
     }, []); // 依赖数组为空 = 仅在组件挂载时创建一次
 
     // 2. 状态绑定 (将 ViewModel 的 state 同步到 Preact)
-    const [state, setState] = useState<GlimpseState>(viewModel.getState());
+    const [state, setState] = useState<LinxTransState>(viewModel.getState());
 
     // 3. 生命周期与订阅
     useEffect(() => {

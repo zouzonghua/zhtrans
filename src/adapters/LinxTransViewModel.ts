@@ -4,7 +4,7 @@ import { calculatePopupPosition, PopupPosition } from '@/presentation/utils/posi
 import { SELECTION_MAX_LENGTH, OFFSET_TRIGGER_X, OFFSET_TRIGGER_Y } from '@/presentation/constants';
 
 // UI 状态定义 (框架无关)
-export interface GlimpseState {
+export interface LinxTransState {
     // 选区 / 触发器
     triggerPos: { x: number; y: number } | null;
 
@@ -19,7 +19,7 @@ export interface GlimpseState {
 }
 
 // 初始状态
-const INITIAL_STATE: GlimpseState = {
+const INITIAL_STATE: LinxTransState = {
     triggerPos: null,
     isLoading: false,
     result: null,
@@ -28,16 +28,16 @@ const INITIAL_STATE: GlimpseState = {
     isClosing: false
 };
 
-type Listener = (state: GlimpseState) => void;
+type Listener = (state: LinxTransState) => void;
 
 /**
- * Glimpse 纯视图模型
+ * LinxTrans 纯视图模型
  * 
  * 这是一个纯 TypeScript 类，不依赖 React/Vue 等任何 UI 框架。
  * 它管理了应用所有的状态和交互逻辑。
  */
-export class GlimpseViewModel {
-    private state: GlimpseState = { ...INITIAL_STATE };
+export class LinxTransViewModel {
+    private state: LinxTransState = { ...INITIAL_STATE };
     private listeners: Listener[] = [];
     private useCase: LookupUseCase;
 
@@ -46,7 +46,7 @@ export class GlimpseViewModel {
     }
 
     // --- 核心: 状态管理 (发布/订阅模式) ---
-    public getState(): GlimpseState {
+    public getState(): LinxTransState {
         return this.state;
     }
 
@@ -57,7 +57,7 @@ export class GlimpseViewModel {
         };
     }
 
-    private setState(partial: Partial<GlimpseState>) {
+    private setState(partial: Partial<LinxTransState>) {
         this.state = { ...this.state, ...partial };
         this.notify();
     }

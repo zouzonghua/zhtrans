@@ -15,15 +15,15 @@ interface ContentProps {
 export const TranslationContent = ({ result, isLoading, isSpeaking, onSpeak }: ContentProps) => {
   if (isLoading) {
     return (
-      <div className="glimpse-popup__content">
-        <div className="glimpse-lang-header">
+      <div className="linxtrans-popup__content">
+        <div className="linxtrans-lang-header">
           正在翻译...
         </div>
-        <div className="glimpse-skeleton">
-          <div className="glimpse-skeleton__line" style={{ width: '60%' }}></div>
-          <div className="glimpse-skeleton__line" style={{ width: '80%' }}></div>
-          <div className="glimpse-skeleton__line" style={{ width: '40%' }}></div>
-          <div className="glimpse-skeleton__line" style={{ width: '70%' }}></div>
+        <div className="linxtrans-skeleton">
+          <div className="linxtrans-skeleton__line" style={{ width: '60%' }}></div>
+          <div className="linxtrans-skeleton__line" style={{ width: '80%' }}></div>
+          <div className="linxtrans-skeleton__line" style={{ width: '40%' }}></div>
+          <div className="linxtrans-skeleton__line" style={{ width: '70%' }}></div>
         </div>
       </div>
     );
@@ -40,38 +40,38 @@ export const TranslationContent = ({ result, isLoading, isSpeaking, onSpeak }: C
   const showPhonetic = !isLongText && !!result.phonetic;
 
   return (
-    <div className="glimpse-popup__content">
+    <div className="linxtrans-popup__content">
       {/* 语言方向提示 */}
-      <div className="glimpse-lang-header">
+      <div className="linxtrans-lang-header">
         {/[\u4e00-\u9fa5]/.test(result.original) ? "中文-英文" : "简体中文-英文"}
-        <div className="glimpse-separator"></div>
+        <div className="linxtrans-separator"></div>
       </div>
 
       {isSentence ? (
         <Fragment>
-          <div className="glimpse-popup__original">{result.original}</div>
-          <div className="glimpse-popup__section-label">翻译结果</div>
-          <div className="glimpse-popup__header">
-            <div className="glimpse-popup__word">{result.translated}</div>
+          <div className="linxtrans-popup__original">{result.original}</div>
+          <div className="linxtrans-popup__section-label">翻译结果</div>
+          <div className="linxtrans-popup__header">
+            <div className="linxtrans-popup__word">{result.translated}</div>
             <SpeakButton active={isSpeaking} onClick={onSpeak} />
           </div>
           {showPhonetic && (
-            <div className="glimpse-popup__phonetic glimpse-phonetic-sub">/ {result.phonetic} /</div>
+            <div className="linxtrans-popup__phonetic linxtrans-phonetic-sub">/ {result.phonetic} /</div>
           )}
         </Fragment>
       ) : (
         <Fragment>
-          <div className="glimpse-popup__header">
-            <span className="glimpse-popup__word">{result.original}</span>
-            {showPhonetic && <span className="glimpse-popup__phonetic">| {result.phonetic} |</span>}
+          <div className="linxtrans-popup__header">
+            <span className="linxtrans-popup__word">{result.original}</span>
+            {showPhonetic && <span className="linxtrans-popup__phonetic">| {result.phonetic} |</span>}
             <SpeakButton active={isSpeaking} onClick={onSpeak} />
           </div>
           {result.dictionary!.map(d => (
             <div key={d.pos}>
-              <div className="glimpse-popup__section-label">{d.pos}</div>
+              <div className="linxtrans-popup__section-label">{d.pos}</div>
               {d.definitions.map((def, i) => (
-                <div className="glimpse-popup__def-row" key={i}>
-                  <span className="glimpse-def-number">
+                <div className="linxtrans-popup__def-row" key={i}>
+                  <span className="linxtrans-def-number">
                     {['①', '②', '③', '④', '⑤'][i] || i + 1}
                   </span>
                   <span>{def}</span>
@@ -87,7 +87,7 @@ export const TranslationContent = ({ result, isLoading, isSpeaking, onSpeak }: C
 
 const SpeakButton = ({ active, onClick }: { active: boolean, onClick: () => void }) => (
   <button
-    className={`glimpse-btn ${active ? 'glimpse-btn--speaking' : ''}`}
+    className={`linxtrans-btn ${active ? 'linxtrans-btn--speaking' : ''}`}
     onClick={onClick}
   >
     <SpeakIcon />

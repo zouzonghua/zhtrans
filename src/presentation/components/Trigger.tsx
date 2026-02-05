@@ -13,7 +13,7 @@ interface TriggerProps {
  */
 export const Trigger = ({ x, y, isLoading, onMouseDown }: TriggerProps) => (
   <div 
-    className={`glimpse-trigger ${isLoading ? 'glimpse-trigger--loading' : ''}`}
+    className={`linxtrans-trigger ${isLoading ? 'linxtrans-trigger--loading' : ''}`}
     style={{ left: x, top: y }}
     onMouseDown={onMouseDown}
   >

@@ -1,12 +1,12 @@
 import { render } from 'preact';
-import { GlimpseApp } from './components/GlimpseApp';
+import { LinxTransApp } from './components/LinxTransApp';
 import { LookupUseCase } from '@/application/usecases/LookupUseCase';
 import styles from './styles.css?inline';
 
 export function initUI(useCase: LookupUseCase) {
   // 创建 Shadow DOM 的宿主元素
   const container = document.createElement('div');
-  container.id = 'glimpse-host';
+  container.id = 'linxtrans-host';
   document.body.appendChild(container);
 
   // 使用 Shadow DOM (mode: open) 隔离插件样式，防止被宿主页面的 CSS 污染
@@ -23,7 +23,7 @@ export function initUI(useCase: LookupUseCase) {
 
   // 渲染 Preact 应用，并注入业务用例 (Dependency Injection)
   render(
-    <GlimpseApp
+    <LinxTransApp
       onTranslate={(text) => useCase.execute(text)}
       onSpeak={(text) => useCase.playAudio(text)}
       onStopSpeak={() => useCase.stopAudio()}
@@ -33,12 +33,12 @@ export function initUI(useCase: LookupUseCase) {
 
   /**
    * 监听全局点击事件以关闭 UI。
-   * 注意：因为使用了 Shadow DOM，点击内部元素时 e.target 会被重定向到宿主元素 (glimpse-host)。
+   * 注意：因为使用了 Shadow DOM，点击内部元素时 e.target 会被重定向到宿主元素 (linxtrans-host)。
    */
   document.addEventListener('mousedown', (e) => {
     const target = e.target as HTMLElement;
-    if (target.id !== 'glimpse-host' && (window as any).glimpseHideAll) {
-      (window as any).glimpseHideAll();
+    if (target.id !== 'linxtrans-host' && (window as any).linxtransHideAll) {
+      (window as any).linxtransHideAll();
     }
   });
 }

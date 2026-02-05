@@ -3,7 +3,7 @@ import { Translation } from '@/domain/entities/Translation';
 import { Trigger } from './Trigger';
 import { Popup } from './Popup';
 import { TranslationContent } from './TranslationContent';
-import { useGlimpseModel } from '../hooks/useGlimpseModel';
+import { useLinxTransModel } from '../hooks/useLinxTransModel';
 
 interface Props {
   onTranslate: (text: string) => Promise<Translation>;
@@ -12,19 +12,19 @@ interface Props {
 }
 
 /**
- * Glimpse 主组件 (View)
+ * LinxTrans 主组件 (View)
  * 
  * 职责：
  * 1. 纯 UI 渲染 (Dumb Component)
- * 2. 从 ViewModel (useGlimpseModel) 获取数据和回调
+ * 2. 从 ViewModel (useLinxTransModel) 获取数据和回调
  */
-export const GlimpseApp = (props: Props) => {
-  const { state, actions } = useGlimpseModel(props);
+export const LinxTransApp = (props: Props) => {
+  const { state, actions } = useLinxTransModel(props);
   const { triggerPos, popupPos, isLoading, result, isSpeaking, isClosing } = state;
   const { handleTriggerClick, handleExternalClick, handleSpeak } = actions;
 
   return (
-    <div id="glimpse-wrapper">
+    <div id="linxtrans-wrapper">
       {triggerPos && (
         <Trigger
           x={triggerPos.x}
@@ -37,7 +37,7 @@ export const GlimpseApp = (props: Props) => {
       {popupPos && (result || isLoading) && (
         <Popup
           {...popupPos}
-          className={isClosing ? 'glimpse-popup--closing' : ''}
+          className={isClosing ? 'linxtrans-popup--closing' : ''}
           onExternalClick={handleExternalClick}
         >
           <TranslationContent
