@@ -17,4 +17,5 @@ export interface Translation {
   dictionary?: DictionaryEntry[]; // 详细释义
   srcLang: string;     // 源语种
   targetLang: string;  // 目标语种
+  timestamp?: number;  // 翻译时间戳
 }

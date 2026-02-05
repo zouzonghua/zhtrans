@@ -1,5 +1,5 @@
 import { h, ComponentChildren } from 'preact';
-import { LABEL_DICT, LABEL_WIKI } from '../constants';
+import { LABEL_DICT, LABEL_WIKI } from '../../constants';
 
 interface PopupProps {
   x: number;

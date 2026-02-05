@@ -4,8 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "vite build --watch",
-    "build": "vite build",
+    "dev": "npm run clean && concurrently \"npm run dev:app\" \"npm run dev:content\"",
+    "dev:app": "BUILD_TARGET=app vite build --watch",
+    "dev:content": "BUILD_TARGET=content vite build --watch",
+    "build": "npm run clean && BUILD_TARGET=app vite build && BUILD_TARGET=content vite build",
+    "clean": "rm -rf dist",
     "test": "vitest run",
     "test:watch": "vitest"
   },
@@ -15,7 +18,9 @@
   "type": "commonjs",
   "devDependencies": {
     "@types/chrome": "^0.1.36",
+    "@types/node": "^25.2.0",
     "@vitest/ui": "^4.0.18",
+    "concurrently": "^9.2.1",
     "typescript": "^5.9.3",
     "vite": "^7.3.1",
     "vitest": "^4.0.18"

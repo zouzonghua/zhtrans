@@ -3,7 +3,7 @@ import { Translation } from '@/domain/entities/Translation';
 import { Trigger } from './Trigger';
 import { Popup } from './Popup';
 import { TranslationContent } from './TranslationContent';
-import { useLinxTransModel } from '../hooks/useLinxTransModel';
+import { useLinxTransModel } from '../../hooks/useLinxTransModel';
 
 interface Props {
   onTranslate: (text: string) => Promise<Translation>;

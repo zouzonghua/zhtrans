@@ -1,6 +1,6 @@
 import { h, Fragment } from 'preact';
 import { Translation } from '@/domain/entities/Translation';
-import { SpeakIcon } from '../icons';
+import { SpeakIcon } from '../../icons';
 
 interface ContentProps {
   result: Translation | null;

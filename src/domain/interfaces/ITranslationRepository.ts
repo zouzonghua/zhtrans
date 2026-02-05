@@ -29,4 +29,9 @@ export interface ITranslationRepository {
      * 清除所有缓存
      */
     clear(): Promise<void>;
+
+    /**
+     * 获取所有缓存的翻译
+     */
+    getAll(): Promise<Translation[]>;
 }

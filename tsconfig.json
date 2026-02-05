@@ -29,7 +29,8 @@
     },
     "types": [
       "vite/client",
-      "chrome"
+      "chrome",
+      "node"
     ]
   },
   "include": [

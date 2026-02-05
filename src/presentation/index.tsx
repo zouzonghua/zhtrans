@@ -1,5 +1,5 @@
 import { render } from 'preact';
-import { LinxTransApp } from './components/LinxTransApp';
+import { LinxTransApp } from './components/content/LinxTransApp';
 import { LookupUseCase } from '@/application/usecases/LookupUseCase';
 import styles from './styles.css?inline';
 

@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { SearchIcon, LoadingIcon } from '../icons';
+import { SearchIcon, LoadingIcon } from '../../icons';
 
 interface TriggerProps {
   x: number;
@@ -12,7 +12,7 @@ interface TriggerProps {
  * 划词触发图标组件
  */
 export const Trigger = ({ x, y, isLoading, onMouseDown }: TriggerProps) => (
-  <div 
+  <div
     className={`linxtrans-trigger ${isLoading ? 'linxtrans-trigger--loading' : ''}`}
     style={{ left: x, top: y }}
     onMouseDown={onMouseDown}

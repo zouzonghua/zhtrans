@@ -23,6 +23,9 @@ export class ChromeTranslationRepository implements ITranslationRepository {
     }
 
     async save(translation: Translation): Promise<void> {
+        if (!translation.timestamp) {
+            translation.timestamp = Date.now();
+        }
         const key = this.getCacheKey(translation.original);
         return new Promise((resolve, reject) => {
             chrome.storage.local.set({ [key]: translation }, () => {
@@ -78,5 +81,25 @@ export class ChromeTranslationRepository implements ITranslationRepository {
     private getCacheKey(text: string): string {
         // 简单打平文本作为 key，实际可考虑混淆或哈希
         return this.STORAGE_KEY_PREFIX + text.trim().toLowerCase();
+    }
+
+    async getAll(): Promise<Translation[]> {
+        return new Promise((resolve, reject) => {
+            chrome.storage.local.get(null, (result) => {
+                if (chrome.runtime.lastError) {
+                    return reject(new Error(chrome.runtime.lastError.message));
+                }
+
+                const translations: Translation[] = [];
+                for (const key in result) {
+                    if (key.startsWith(this.STORAGE_KEY_PREFIX)) {
+                        translations.push(result[key] as Translation);
+                    }
+                }
+                // 按时间倒序排序 (新 -> 旧)
+                translations.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+                resolve(translations);
+            });
+        });
     }
 }

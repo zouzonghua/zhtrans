@@ -29,6 +29,7 @@
   },
   "action": {
     "default_icon": "icon.png",
-    "default_title": "LinxTrans"
+    "default_title": "LinxTrans",
+    "default_popup": "src/main/chrome/popup.html"
   }
 }
