@@ -166,11 +166,11 @@ export class LinxTransViewModel {
     // 3. 关闭逻辑 (点击外部)
     private handleMouseDown = (e: MouseEvent) => {
         const target = e.target as HTMLElement;
-        const isInternal = target.closest('#glimpse-host'); // 假设有 ShadowHost 检查或类似逻辑
+        const isInternal = target.closest('#linxtrans-host'); // 假设有 ShadowHost 检查或类似逻辑
         // 注意：在 ShadowDOM 上下文中，e.target 逻辑可能需要仔细处理或传入 host 检查。
         // 简单起见，如果我们能在 document 上接收到此事件，我们可能需要重置。
 
-        // 原始逻辑检查了 target.id !== 'glimpse-host'
+        // 原始逻辑检查了 target.id !== 'linxtrans-host'
         // 如果我们是完全纯净的，我们可能需要 View 告诉我们“点击了外部”。
         // 但是，既然我们在 document 上添加了监听器，我们可以尝试推断。
 

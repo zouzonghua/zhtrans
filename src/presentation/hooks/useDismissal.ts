@@ -40,12 +40,12 @@ export function useDismissal(
 
         window.addEventListener('scroll', handleScroll, { capture: true, passive: true });
 
-        // 暴露给全局 (window.glimpseHideAll)
-        (window as any).glimpseHideAll = fadeOutAndHide;
+        // 暴露给全局 (window.linxtransHideAll)
+        (window as any).linxtransHideAll = fadeOutAndHide;
 
         return () => {
             window.removeEventListener('scroll', handleScroll, { capture: true });
-            delete (window as any).glimpseHideAll;
+            delete (window as any).linxtransHideAll;
         };
     }, [fadeOutAndHide, onReset]);
 

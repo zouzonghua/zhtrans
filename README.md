@@ -1,6 +1,6 @@
-# Glimpse
+# LinxTrans
 
-Glimpse 是一款追求极简主义、深度还原 macOS 原生“查找 (Look Up)”质感的 Chrome 翻译插件。
+LinxTrans 是一款追求极简主义、深度还原 macOS 原生“查找 (Look Up)”质感的 Chrome 翻译插件。
 
 ## ✨ 特性
 
@@ -16,12 +16,12 @@ Glimpse 是一款追求极简主义、深度还原 macOS 原生“查找 (Look U
 - **标准 CSS + BEM**：严格遵循 BEM 命名规范，确保样式的隔离性与可维护性。
 - **现代技术栈**：TypeScript + Vite + Preact + Shadow DOM。
 
-Glimpse 遵循 **整洁架构 (Clean Architecture)** + **MVVM** 原则，将关注点分离，确保业务逻辑独立于 UI 和外部框架。
+LinxTrans 遵循 **整洁架构 (Clean Architecture)** + **MVVM** 原则，将关注点分离，确保业务逻辑独立于 UI 和外部框架。
 
 ### 目录结构说明
 
 ```text
-Glimpse/
+LinxTrans/
 ├── src/
 │   ├── domain/               # [核心层] 业务实体与接口契约
 │   │   ├── entities/         # 核心数据模型 (如 Translation, DictionaryEntry)
@@ -31,7 +31,7 @@ Glimpse/
 │   │   └── usecases/         # 封装具体业务逻辑 (如 LookupUseCase: 协调查词与发音)
 │   │
 │   ├── adapters/             # [适配器层] 框架无关的逻辑适配
-│   │   └── GlimpseViewModel  # [ViewModel] 纯类，管理状态与交互 (无 UI 框架依赖)
+│   │   └── LinxTransViewModel  # [ViewModel] 纯类，管理状态与交互 (无 UI 框架依赖)
 │   │
 │   ├── infrastructure/       # [基础设施层] 外部服务实现
 │   │   ├── services/         # 第三方 API 集成 (GoogleTranslator, WebSpeech)
@@ -39,12 +39,12 @@ Glimpse/
 │   │
 │   ├── presentation/         # [表现层] UI 与交互逻辑 (Preact)
 │   │   ├── components/       # 原子化 UI 组件 (无状态 View)
-│   │   │   ├── GlimpseApp    # 根组件：纯 UI (Dumb Component)
+│   │   │   ├── LinxTransApp    # 根组件：纯 UI (Dumb Component)
 │   │   │   ├── Popup         # 翻译结果弹窗容器
 │   │   │   ├── Trigger       # 划词浮动图标
 │   │   │   └── ...
 │   │   ├── hooks/            # [UI 适配器] 连接 React 与 ViewModel
-│   │   │   ├── useGlimpseModel     # [Binder] 实例化 VM 并绑定 React 响应式状态
+│   │   │   ├── useLinxTransModel     # [Binder] 实例化 VM 并绑定 React 响应式状态
 │   │   │   └── useDismissal        # [Helper] 辅助 DOM 操作 (如滚动监听)
 │   │   ├── utils/            # 纯工具函数 (如几何位置计算 calculatePopupPosition)
 │   │   └── styles.css        # 基于 BEM 规范的样式表
@@ -64,9 +64,9 @@ Glimpse/
 
 2.  **MVVM 模式 (Model-View-ViewModel)**：
     *   为了彻底解耦 UI 框架与业务逻辑，我们采用了**框架无关**的 MVVM 实现。
-    *   **ViewModel (`GlimpseViewModel`)**：位于 `adapters` 层。一个纯 TypeScript 类，不依赖 React/Vue。管理所有状态与交互逻辑。
-    *   **Binder (`useGlimpseModel`)**：位于 `presentation` 层。一个 React Hook，仅负责将 VM 的状态绑定到 React 视图。
-    *   **View (`GlimpseApp`)**：完全无脑的 UI 渲染组件。
+    *   **ViewModel (`LinxTransViewModel`)**：位于 `adapters` 层。一个纯 TypeScript 类，不依赖 React/Vue。管理所有状态与交互逻辑。
+    *   **Binder (`useLinxTransModel`)**：位于 `presentation` 层。一个 React Hook，仅负责将 VM 的状态绑定到 React 视图。
+    *   **View (`LinxTransApp`)**：完全无脑的 UI 渲染组件。
     *   *好处*：核心逻辑可以在不同 UI 框架间 100% 复用 (如迁移到 Vue 或 Flutter)。
 
 3.  **单一职责 (Single Responsibility)**：
@@ -97,10 +97,10 @@ npm run build
 
 ## 📝 开发者笔记
 
-- **Pure Class 架构**：所有的交互逻辑（选区计算、翻译流转、快捷键）都封装在 `GlimpseViewModel` 纯类中，便于单独测试与移植。
-- **UI 绑定 (Binding)**：`useGlimpseModel` hook 充当了 "胶水" 的角色，它通过订阅 (Subject-Observer) 模式监听 VM 的变化并触发组件重渲染。
+- **Pure Class 架构**：所有的交互逻辑（选区计算、翻译流转、快捷键）都封装在 `LinxTransViewModel` 纯类中，便于单独测试与移植。
+- **UI 绑定 (Binding)**：`useLinxTransModel` hook 充当了 "胶水" 的角色，它通过订阅 (Subject-Observer) 模式监听 VM 的变化并触发组件重渲染。
 - **样式注入**：利用 Vite 的 `?inline` 模式将 CSS 编译为字符串，在运行时注入 Shadow Root，确保插件在任何网页环境下都能完美还原 macOS 质感而不受外部样式干扰。
-- **BEM 规范**：类名严格遵循 `glimpse-[block]__[element]--[modifier]`。例如弹窗的关闭状态使用 `glimpse-popup--closing` 修饰符。
+- **BEM 规范**：类名严格遵循 `linxtrans-[block]__[element]--[modifier]`。例如弹窗的关闭状态使用 `linxtrans-popup--closing` 修饰符。
 
 ## 📜 开源协议
 MIT License
