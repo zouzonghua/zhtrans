@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "npm run clean && concurrently \"npm run dev:app\" \"npm run dev:content\"",
-    "dev:app": "BUILD_TARGET=app vite build --watch",
-    "dev:content": "BUILD_TARGET=content vite build --watch",
+    "dev:app": "BUILD_TARGET=app vite build --watch --mode development",
+    "dev:content": "BUILD_TARGET=content vite build --watch --mode development",
     "build": "npm run clean && BUILD_TARGET=app vite build && BUILD_TARGET=content vite build",
     "clean": "rm -rf dist",
     "test": "vitest run",
