@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { useEffect, useState } from 'preact/hooks';
+import { useEffect, useState, useMemo, useCallback } from 'preact/hooks';
 import { Translation } from '@/domain/entities/Translation';
 import { ChromeTranslationRepository } from '@/infrastructure/repositories/ChromeTranslationRepository';
 import { SpeakIcon } from '../../icons';
@@ -16,29 +16,29 @@ export const HistoryApp = () => {
     const [loading, setLoading] = useState(true);
     const [speakingItem, setSpeakingItem] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
-    const repo = new ChromeTranslationRepository();
-    const tts = new WebSpeechService();
+    const repo = useMemo(() => new ChromeTranslationRepository(), []);
+    const tts = useMemo(() => new WebSpeechService(), []);
 
-    useEffect(() => {
-        loadHistory();
-    }, []);
-
-    const loadHistory = async () => {
+    const loadHistory = useCallback(async () => {
         setLoading(true);
         try {
             const items = await repo.getAll();
-            setHistory(items.reverse()); // 简单的倒序显示
+            setHistory(items);
         } catch (e) {
             console.error(e);
         } finally {
             setLoading(false);
         }
-    };
+    }, [repo]);
 
-    const handleDelete = async (text: string) => {
+    useEffect(() => {
+        loadHistory();
+    }, [loadHistory]);
+
+    const handleDelete = useCallback(async (text: string) => {
         await repo.delete(text);
         loadHistory();
-    };
+    }, [repo, loadHistory]);
 
     const handleSpeak = (text: string) => {
         // 如果正在播放同一条，则停止
@@ -84,8 +84,8 @@ export const HistoryApp = () => {
                     </div>
                 ) : (
                     <ul className="linxtrans-history__list">
-                        {filteredHistory.map((item, index) => (
-                            <li key={index} className="linxtrans-history__item">
+                        {filteredHistory.map((item) => (
+                            <li key={item.original} className="linxtrans-history__item">
                                 <div className="linxtrans-history__main">
                                     <div className="linxtrans-history__original">
                                         {item.original}

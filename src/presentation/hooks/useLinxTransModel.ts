@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'preact/hooks';
+import { useEffect, useState, useMemo, useRef } from 'preact/hooks';
 import { Translation } from '@/domain/entities/Translation';
 import { LinxTransViewModel, LinxTransState } from '@/adapters/LinxTransViewModel';
 import { LookupUseCase } from '@/application/usecases/LookupUseCase';
@@ -22,6 +22,22 @@ interface UseLinxTransModelProps {
  * 3. 管理生命周期 (Mount/Unmount)
  */
 export function useLinxTransModel({ onTranslate, onSpeak, onStopSpeak }: UseLinxTransModelProps) {
+    const translateRef = useRef(onTranslate);
+    const speakRef = useRef(onSpeak);
+    const stopSpeakRef = useRef(onStopSpeak);
+
+    useEffect(() => {
+        translateRef.current = onTranslate;
+    }, [onTranslate]);
+
+    useEffect(() => {
+        speakRef.current = onSpeak;
+    }, [onSpeak]);
+
+    useEffect(() => {
+        stopSpeakRef.current = onStopSpeak;
+    }, [onStopSpeak]);
+
     // 1. 实例化纯 ViewModel (保持引用稳定)
     // 在真正的依赖注入(DI)系统中，这里通常通过 useDI() 或 Context 获取
     const viewModel = useMemo(() => {
@@ -31,9 +47,9 @@ export function useLinxTransModel({ onTranslate, onSpeak, onStopSpeak }: UseLinx
         // 这里的 onTranslate prop 实际上直接执行了用例逻辑 (在 content.ts 中定义)，
         // 所以我们将其包装成 UseCase 接口的形式。
         const useCaseProxy = {
-            execute: onTranslate,
-            playAudio: onSpeak,
-            stopAudio: onStopSpeak
+            execute: (text: string) => translateRef.current(text),
+            playAudio: (text: string) => speakRef.current(text),
+            stopAudio: () => stopSpeakRef.current()
         } as unknown as LookupUseCase;
 
         return new LinxTransViewModel(useCaseProxy);

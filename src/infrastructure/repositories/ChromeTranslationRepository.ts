@@ -97,7 +97,7 @@ export class ChromeTranslationRepository implements ITranslationRepository {
                     }
                 }
                 // 按时间倒序排序 (新 -> 旧)
-                translations.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+                translations.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
                 resolve(translations);
             });
         });

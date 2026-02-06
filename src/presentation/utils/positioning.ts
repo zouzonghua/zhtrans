@@ -31,7 +31,8 @@ export function calculatePopupPosition(
 
     // Calculate Tail Position (percentage)
     // Relative to the popup width
-    const tailPos = ((centerX - left) / POPUP_WIDTH) * 100;
+    const rawTailPos = ((centerX - left) / POPUP_WIDTH) * 100;
+    const tailPos = Math.max(0, Math.min(100, rawTailPos));
 
     return { x: left, y: top, isBottom, tailPos };
 }
