@@ -23,36 +23,31 @@ LinxTrans 遵循 **整洁架构 (Clean Architecture)** + **MVVM** 原则，将�
 ```text
 LinxTrans/
 ├── src/
-│   ├── domain/               # [核心层] 业务实体与接口契约
-│   │   ├── entities/         # 核心数据模型 (如 Translation, DictionaryEntry)
-│   │   └── repositories/     # 仓储接口定义 (定义 "如何获取数据" 的标准)
+│   ├── presentation/         # [Presentation Layer] 表现层
+│   │   ├── ui/               # UI 组件
+│   │   │   ├── chrome/       # Chrome Extension 入口
+│   │   │   │   ├── content.ts    # Content Script 入口
+│   │   │   │   ├── background.ts # Service Worker
+│   │   │   │   └── popup.html    # Popup 页面
+│   │   │   ├── common/       # 通用 UI 代码
+│   │   │   ├── content/      # Content Script 组件
+│   │   │   ├── popup/        # Popup 组件
+│   │   │   ├── hooks/        # React Hooks
+│   │   │   └── utils/        # UI 工具函数
+│   │   └── viewmodels/       # ViewModels (状态管理)
+│   │       └── LinxTransViewModel.ts
 │   │
-│   ├── application/          # [应用层] 业务用例 (Use Cases)
-│   │   └── usecases/         # 封装具体业务逻辑 (如 LookupUseCase: 协调查词与发音)
+│   ├── domain/               # [Domain Layer] 业务逻辑层
+│   │   ├── entities/         # 业务实体 (Translation, DictionaryEntry)
+│   │   ├── repositories/     # 仓库接口定义 (ITranslator, ITextToSpeech, ITranslationRepository)
+│   │   └── usecases/         # 用例 (LookupUseCase: 封装业务逻辑)
 │   │
-│   ├── adapters/             # [适配器层] 框架无关的逻辑适配
-│   │   └── LinxTransViewModel  # [ViewModel] 纯类，管理状态与交互 (无 UI 框架依赖)
-│   │
-│   ├── infrastructure/       # [基础设施层] 外部服务实现
-│   │   ├── services/         # 第三方 API 集成 (GoogleTranslator, WebSpeech)
-│   │   └── repositories/     # 仓储接口的具体实现
-│   │
-│   ├── presentation/         # [表现层] UI 与交互逻辑 (Preact)
-│   │   ├── components/       # 原子化 UI 组件 (无状态 View)
-│   │   │   ├── LinxTransApp    # 根组件：纯 UI (Dumb Component)
-│   │   │   ├── Popup         # 翻译结果弹窗容器
-│   │   │   ├── Trigger       # 划词浮动图标
-│   │   │   └── ...
-│   │   ├── hooks/            # [UI 适配器] 连接 React 与 ViewModel
-│   │   │   ├── useLinxTransModel     # [Binder] 实例化 VM 并绑定 React 响应式状态
-│   │   │   └── useDismissal        # [Helper] 辅助 DOM 操作 (如滚动监听)
-│   │   ├── utils/            # 纯工具函数 (如几何位置计算 calculatePopupPosition)
-│   │   └── styles.css        # 基于 BEM 规范的样式表
-│   │
-│   └── main/                 # [入口层] 平台特定入口 (Chrome Extension)
-│       └── chrome/
-│           ├── content.ts    # Content Script: 依赖注入 (DI) 与 UI 挂载
-│           └── background.ts # Service Worker: 跨域代理与后台服务
+│   └── data/                 # [Data Layer] 数据层
+│       ├── local/            # 本地数据源
+│       │   └── tts/          # 语音服务 (WebSpeechService)
+│       ├── remote/           # 远程数据源
+│       │   └── api/          # API 服务 (GoogleTranslator)
+│       └── repository/       # 仓库实现 (ChromeTranslationRepository)
 ```
 
 ### 核心设计思想

@@ -38,10 +38,10 @@ export default defineConfig(({ mode }) => {
       emptyOutDir: !isContent && mode !== 'development',
       rollupOptions: {
         input: (isContent ? {
-          content: resolve(__dirname, 'src/main/chrome/content.ts'),
+          content: resolve(__dirname, 'src/presentation/ui/chrome/content.ts'),
         } : {
-          background: resolve(__dirname, 'src/main/chrome/background.ts'),
-          popup: resolve(__dirname, 'src/main/chrome/popup.html')
+          background: resolve(__dirname, 'src/presentation/ui/chrome/background.ts'),
+          popup: resolve(__dirname, 'src/presentation/ui/chrome/popup.html')
         }) as Record<string, string>,
         output: {
           entryFileNames: '[name].js',

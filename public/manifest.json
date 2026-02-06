@@ -30,6 +30,6 @@
   "action": {
     "default_icon": "icon.png",
     "default_title": "LinxTrans",
-    "default_popup": "src/main/chrome/popup.html"
+    "default_popup": "/src/presentation/ui/chrome/popup.html"
   }
 }
