@@ -1,9 +1,9 @@
 import { render } from 'preact';
-import { LinxTransApp } from '@/presentation/ui/content/LinxTransApp';
+import { LookupApp } from '@/presentation/ui/content/LookupApp';
 import { LookupUseCase } from '@/domain/usecases/LookupUseCase';
 import styles from '@/presentation/ui/content/styles.css?inline';
 
-export function initUI(useCase: LookupUseCase) {
+export function mountLookupUI(useCase: LookupUseCase) {
   // 创建 Shadow DOM 的宿主元素
   const container = document.createElement('div');
   container.id = 'linxtrans-host';
@@ -23,11 +23,7 @@ export function initUI(useCase: LookupUseCase) {
 
   // 渲染 Preact 应用，并注入业务用例 (Dependency Injection)
   render(
-    <LinxTransApp
-      onTranslate={(text) => useCase.execute(text)}
-      onSpeak={(text) => useCase.playAudio(text)}
-      onStopSpeak={() => useCase.stopAudio()}
-    />,
+    <LookupApp useCase={useCase} />,
     root
   );
 

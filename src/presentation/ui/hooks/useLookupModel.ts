@@ -1,19 +1,9 @@
-import { useEffect, useState, useMemo, useRef } from 'preact/hooks';
-import { Translation } from '@/domain/entities/Translation';
-import { LinxTransViewModel, LinxTransState } from '@/presentation/viewmodels/LinxTransViewModel';
+import { useEffect, useState, useMemo } from 'preact/hooks';
+import { LookupViewModel, LookupState } from '@/presentation/viewmodels/LookupViewModel';
 import { LookupUseCase } from '@/domain/usecases/LookupUseCase';
 import { useDismissal } from './useDismissal';
 import { useSelectionTrigger } from './useSelectionTrigger';
 import { useShortcuts } from './useShortcuts';
-
-interface UseLinxTransModelProps {
-    /** 翻译回调 */
-    onTranslate: (text: string) => Promise<Translation>;
-    /** 朗读回调 */
-    onSpeak: (text: string) => Promise<void>;
-    /** 停止朗读回调 */
-    onStopSpeak: () => void;
-}
 
 /**
  * LinxTrans ViewModel Binder (Preact 适配器)
@@ -23,36 +13,14 @@ interface UseLinxTransModelProps {
  * 2. 将 ViewModel 的状态桥接到 Preact 的响应式系统 (State Binding)
  * 3. 负责"平台适配"：使用 Hooks 监听 DOM 事件并转发给 ViewModel
  */
-export function useLinxTransModel({ onTranslate, onSpeak, onStopSpeak }: UseLinxTransModelProps) {
-    const translateRef = useRef(onTranslate);
-    const speakRef = useRef(onSpeak);
-    const stopSpeakRef = useRef(onStopSpeak);
-
-    useEffect(() => {
-        translateRef.current = onTranslate;
-    }, [onTranslate]);
-
-    useEffect(() => {
-        speakRef.current = onSpeak;
-    }, [onSpeak]);
-
-    useEffect(() => {
-        stopSpeakRef.current = onStopSpeak;
-    }, [onStopSpeak]);
-
-    // 1. 实例化纯 ViewModel
+export function useLookupModel(useCase: LookupUseCase) {
+    // 1. 实例化纯 ViewModel (不再需要 Proxy)
     const viewModel = useMemo(() => {
-        const useCaseProxy = {
-            execute: (text: string) => translateRef.current(text),
-            playAudio: (text: string) => speakRef.current(text),
-            stopAudio: () => stopSpeakRef.current()
-        } as unknown as LookupUseCase;
-
-        return new LinxTransViewModel(useCaseProxy);
-    }, []);
+        return new LookupViewModel(useCase);
+    }, [useCase]);
 
     // 2. 状态绑定
-    const [state, setState] = useState<LinxTransState>(viewModel.getState());
+    const [state, setState] = useState<LookupState>(viewModel.getState());
 
     useEffect(() => {
         const unsubscribe = viewModel.subscribe((newState) => {

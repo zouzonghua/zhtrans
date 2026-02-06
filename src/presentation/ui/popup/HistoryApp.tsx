@@ -1,65 +1,26 @@
-import { h } from 'preact';
-import { useEffect, useState, useMemo, useCallback } from 'preact/hooks';
-import { Translation } from '@/domain/entities/Translation';
-import { ChromeTranslationRepository } from '@/data/repository/ChromeTranslationRepository';
 import { SpeakIcon } from '@/presentation/ui/common/icons';
-import { WebSpeechService } from '@/data/local/tts/WebSpeechService';
+import { useHistoryModel } from '@/presentation/ui/hooks/useHistoryModel';
+import { HistoryUseCase } from '@/domain/usecases/HistoryUseCase';
 import styles from './history.css?inline';
 
 declare const __APP_VERSION__: string;
 
+interface Props {
+    useCase: HistoryUseCase;
+}
+
 /**
  * 历史记录弹窗应用
+ * 
+ * Refactored to clean architecture:
+ * - Dumb Component: Only responsible for rendering
+ * - Logic delegated to useHistoryModel -> HistoryViewModel
  */
-export const HistoryApp = () => {
-    const [history, setHistory] = useState<Translation[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [speakingItem, setSpeakingItem] = useState<string | null>(null);
-    const [searchQuery, setSearchQuery] = useState('');
-    const repo = useMemo(() => new ChromeTranslationRepository(), []);
-    const tts = useMemo(() => new WebSpeechService(), []);
-
-    const loadHistory = useCallback(async () => {
-        setLoading(true);
-        try {
-            const items = await repo.getAll();
-            setHistory(items);
-        } catch (e) {
-            console.error(e);
-        } finally {
-            setLoading(false);
-        }
-    }, [repo]);
-
-    useEffect(() => {
-        loadHistory();
-    }, [loadHistory]);
-
-    const handleDelete = useCallback(async (text: string) => {
-        await repo.delete(text);
-        loadHistory();
-    }, [repo, loadHistory]);
-
-    const handleSpeak = (text: string) => {
-        // 如果正在播放同一条，则停止
-        if (speakingItem === text) {
-            tts.stop();
-            setSpeakingItem(null);
-            return;
-        }
-
-        tts.stop();
-        setSpeakingItem(text);
-        tts.speak(text)
-            .then(() => setSpeakingItem(null))
-            .catch(() => setSpeakingItem(null));
-    };
-
-    const filteredHistory = history.filter(item => {
-        const query = searchQuery.toLowerCase();
-        return item.original.toLowerCase().includes(query) ||
-            item.translated.toLowerCase().includes(query);
-    });
+export const HistoryApp = ({ useCase }: Props) => {
+    // 1. 获取 Model (State & Actions)
+    const { state, actions } = useHistoryModel(useCase);
+    const { loading, filteredHistory, speakingItem, searchQuery } = state;
+    const { handleDelete, handleSpeak, handleSearch } = actions;
 
     return (
         <div className="linxtrans-history">
@@ -70,7 +31,7 @@ export const HistoryApp = () => {
                         type="text"
                         placeholder="Search..."
                         value={searchQuery}
-                        onInput={(e) => setSearchQuery(e.currentTarget.value)}
+                        onInput={(e) => handleSearch(e.currentTarget.value)}
                     />
                 </div>
             </header>

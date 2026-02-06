@@ -3,7 +3,7 @@ import { LookupUseCase } from '@/domain/usecases/LookupUseCase';
 import { calculatePopupPosition, PopupPosition } from '@/presentation/ui/utils/positioning';
 
 // UI 状态定义 (框架无关)
-export interface LinxTransState {
+export interface LookupState {
     // 选区 / 触发器
     triggerPos: { x: number; y: number } | null;
 
@@ -19,7 +19,7 @@ export interface LinxTransState {
 }
 
 // 初始状态
-const INITIAL_STATE: LinxTransState = {
+const INITIAL_STATE: LookupState = {
     triggerPos: null,
     isLoading: false,
     result: null,
@@ -29,16 +29,16 @@ const INITIAL_STATE: LinxTransState = {
     isClosing: false
 };
 
-type Listener = (state: LinxTransState) => void;
+type Listener = (state: LookupState) => void;
 
 /**
- * LinxTrans 纯视图模型
+ * Lookup 纯视图模型
  * 
  * 这是一个纯 TypeScript 类，不依赖 React/Vue 等任何 UI 框架。
  * 它管理了应用所有的状态和交互逻辑。
  */
-export class LinxTransViewModel {
-    private state: LinxTransState = { ...INITIAL_STATE };
+export class LookupViewModel {
+    private state: LookupState = { ...INITIAL_STATE };
     private listeners: Listener[] = [];
     private useCase: LookupUseCase;
     private requestId = 0;
@@ -50,7 +50,7 @@ export class LinxTransViewModel {
     }
 
     // --- 核心: 状态管理 (发布/订阅模式) ---
-    public getState(): LinxTransState {
+    public getState(): LookupState {
         return this.state;
     }
 
@@ -61,7 +61,7 @@ export class LinxTransViewModel {
         };
     }
 
-    private setState(partial: Partial<LinxTransState>) {
+    private setState(partial: Partial<LookupState>) {
         this.state = { ...this.state, ...partial };
         this.notify();
     }

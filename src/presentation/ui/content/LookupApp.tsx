@@ -1,25 +1,23 @@
 import { h } from 'preact';
-import { Translation } from '@/domain/entities/Translation';
 import { Trigger } from './Trigger';
 import { Popup } from './Popup';
 import { TranslationContent } from './TranslationContent';
-import { useLinxTransModel } from '@/presentation/ui/hooks/useLinxTransModel';
+import { LookupUseCase } from '@/domain/usecases/LookupUseCase';
+import { useLookupModel } from '@/presentation/ui/hooks/useLookupModel';
 
 interface Props {
-  onTranslate: (text: string) => Promise<Translation>;
-  onSpeak: (text: string) => Promise<void>;
-  onStopSpeak: () => void;
+  useCase: LookupUseCase;
 }
 
 /**
- * LinxTrans 主组件 (View)
+ * Lookup 主组件 (View)
  * 
  * 职责：
  * 1. 纯 UI 渲染 (Dumb Component)
- * 2. 从 ViewModel (useLinxTransModel) 获取数据和回调
+ * 2. 从 ViewModel (useLookupModel) 获取数据和回调
  */
-export const LinxTransApp = (props: Props) => {
-  const { state, actions } = useLinxTransModel(props);
+export const LookupApp = (props: Props) => {
+  const { state, actions } = useLookupModel(props.useCase);
   const { triggerPos, popupPos, isLoading, result, isSpeaking, isClosing, error } = state;
   const { handleTriggerClick, handleExternalClick, handleSpeak, handleRetry, handleReposition } = actions;
 
