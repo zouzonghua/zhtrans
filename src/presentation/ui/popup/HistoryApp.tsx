@@ -5,8 +5,13 @@ import styles from './history.css?inline';
 
 declare const __APP_VERSION__: string;
 
+import { SpeakTextUseCase } from '@/domain/usecases/SpeakTextUseCase';
+
+
+
 interface Props {
     useCase: HistoryUseCase;
+    speakUseCase: SpeakTextUseCase;
 }
 
 /**
@@ -16,9 +21,9 @@ interface Props {
  * - Dumb Component: Only responsible for rendering
  * - Logic delegated to useHistoryModel -> HistoryViewModel
  */
-export const HistoryApp = ({ useCase }: Props) => {
+export const HistoryApp = ({ useCase, speakUseCase }: Props) => {
     // 1. 获取 Model (State & Actions)
-    const { state, actions } = useHistoryModel(useCase);
+    const { state, actions } = useHistoryModel(useCase, speakUseCase);
     const { loading, filteredHistory, speakingItem, searchQuery } = state;
     const { handleDelete, handleSpeak, handleSearch } = actions;
 

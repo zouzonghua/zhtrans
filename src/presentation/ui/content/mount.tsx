@@ -1,9 +1,10 @@
 import { render } from 'preact';
 import { LookupApp } from '@/presentation/ui/content/LookupApp';
 import { LookupUseCase } from '@/domain/usecases/LookupUseCase';
+import { SpeakTextUseCase } from '@/domain/usecases/SpeakTextUseCase';
 import styles from '@/presentation/ui/content/styles.css?inline';
 
-export function mountLookupUI(useCase: LookupUseCase) {
+export function mountLookupUI(useCase: LookupUseCase, speakUseCase: SpeakTextUseCase) {
   // 创建 Shadow DOM 的宿主元素
   const container = document.createElement('div');
   container.id = 'linxtrans-host';
@@ -23,7 +24,7 @@ export function mountLookupUI(useCase: LookupUseCase) {
 
   // 渲染 Preact 应用，并注入业务用例 (Dependency Injection)
   render(
-    <LookupApp useCase={useCase} />,
+    <LookupApp useCase={useCase} speakUseCase={speakUseCase} />,
     root
   );
 

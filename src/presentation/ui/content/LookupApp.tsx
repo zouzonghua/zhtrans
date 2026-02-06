@@ -1,12 +1,15 @@
-import { h } from 'preact';
+
 import { Trigger } from './Trigger';
 import { Popup } from './Popup';
 import { TranslationContent } from './TranslationContent';
 import { LookupUseCase } from '@/domain/usecases/LookupUseCase';
 import { useLookupModel } from '@/presentation/ui/hooks/useLookupModel';
 
+import { SpeakTextUseCase } from '@/domain/usecases/SpeakTextUseCase';
+
 interface Props {
   useCase: LookupUseCase;
+  speakUseCase: SpeakTextUseCase;
 }
 
 /**
@@ -17,7 +20,7 @@ interface Props {
  * 2. 从 ViewModel (useLookupModel) 获取数据和回调
  */
 export const LookupApp = (props: Props) => {
-  const { state, actions } = useLookupModel(props.useCase);
+  const { state, actions } = useLookupModel(props.useCase, props.speakUseCase);
   const { triggerPos, popupPos, isLoading, result, isSpeaking, isClosing, error } = state;
   const { handleTriggerClick, handleExternalClick, handleSpeak, handleRetry, handleReposition } = actions;
 

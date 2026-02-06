@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { LookupUseCase } from './LookupUseCase';
 import { ITranslator } from '@/domain/repositories/ITranslator';
-import { ITextToSpeech } from '@/domain/repositories/ITextToSpeech';
+
 import { ITranslationRepository } from '@/domain/repositories/ITranslationRepository';
 import { Translation } from '@/domain/entities/Translation';
 
@@ -16,7 +16,7 @@ import { Translation } from '@/domain/entities/Translation';
  */
 describe('LookupUseCase', () => {
     let mockTranslator: ITranslator;
-    let mockTTS: ITextToSpeech;
+
     let mockRepository: ITranslationRepository;
     let useCase: LookupUseCase;
 
@@ -33,18 +33,15 @@ describe('LookupUseCase', () => {
         mockTranslator = {
             translate: vi.fn().mockResolvedValue(sampleTranslation)
         };
-        mockTTS = {
-            speak: vi.fn().mockResolvedValue(undefined),
-            stop: vi.fn()
-        };
         mockRepository = {
             get: vi.fn().mockResolvedValue(null),
             save: vi.fn().mockResolvedValue(undefined),
             delete: vi.fn(),
-            clear: vi.fn()
+            clear: vi.fn(),
+            getAll: vi.fn()
         };
         // 实例化被测对象
-        useCase = new LookupUseCase(mockTranslator, mockTTS, mockRepository);
+        useCase = new LookupUseCase(mockTranslator, mockRepository);
     });
 
     it('如果仓库中存在缓存，应直接返回缓存结果', async () => {
@@ -74,14 +71,6 @@ describe('LookupUseCase', () => {
         // 验证：拦截无效输入
         await expect(useCase.execute('')).rejects.toThrow('Text is empty');
         await expect(useCase.execute('   ')).rejects.toThrow('Text is empty');
-    });
-
-    it('应能够正确调用语音合成服务播放音频', async () => {
-        await useCase.playAudio('hello');
-
-        // 验证
-        expect(mockTTS.stop).toHaveBeenCalled();
-        expect(mockTTS.speak).toHaveBeenCalledWith('hello');
     });
 });
 

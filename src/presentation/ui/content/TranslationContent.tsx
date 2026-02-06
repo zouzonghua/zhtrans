@@ -1,4 +1,4 @@
-import { h, Fragment } from 'preact';
+import { Fragment } from 'preact';
 import { Translation } from '@/domain/entities/Translation';
 import { SpeakIcon } from '@/presentation/ui/common/icons';
 

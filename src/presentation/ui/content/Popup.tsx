@@ -1,4 +1,4 @@
-import { h, ComponentChildren } from 'preact';
+import { ComponentChildren } from 'preact';
 import { useEffect, useLayoutEffect, useRef } from 'preact/hooks';
 import { LABEL_DICT, LABEL_WIKI } from '@/presentation/ui/common/constants';
 

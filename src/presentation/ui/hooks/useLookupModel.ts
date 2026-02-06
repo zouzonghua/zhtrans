@@ -13,11 +13,15 @@ import { useShortcuts } from './useShortcuts';
  * 2. 将 ViewModel 的状态桥接到 Preact 的响应式系统 (State Binding)
  * 3. 负责"平台适配"：使用 Hooks 监听 DOM 事件并转发给 ViewModel
  */
-export function useLookupModel(useCase: LookupUseCase) {
+import { SpeakTextUseCase } from '@/domain/usecases/SpeakTextUseCase';
+
+// ...
+
+export function useLookupModel(useCase: LookupUseCase, speakUseCase: SpeakTextUseCase) {
     // 1. 实例化纯 ViewModel (不再需要 Proxy)
     const viewModel = useMemo(() => {
-        return new LookupViewModel(useCase);
-    }, [useCase]);
+        return new LookupViewModel(useCase, speakUseCase);
+    }, [useCase, speakUseCase]);
 
     // 2. 状态绑定
     const [state, setState] = useState<LookupState>(viewModel.getState());

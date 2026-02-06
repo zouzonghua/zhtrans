@@ -1,5 +1,6 @@
 import { Translation } from '@/domain/entities/Translation';
 import { HistoryUseCase } from '@/domain/usecases/HistoryUseCase';
+import { SpeakTextUseCase } from '@/domain/usecases/SpeakTextUseCase';
 
 // UI State
 export interface HistoryState {
@@ -20,16 +21,17 @@ const INITIAL_STATE: HistoryState = {
 
 type Listener = (state: HistoryState) => void;
 
-/**
- * History 纯视图模型
- */
+// ... (State interface remains same)
+
 export class HistoryViewModel {
     private state: HistoryState = { ...INITIAL_STATE };
     private listeners: Listener[] = [];
     private useCase: HistoryUseCase;
+    private speakUseCase: SpeakTextUseCase;
 
-    constructor(useCase: HistoryUseCase) {
+    constructor(useCase: HistoryUseCase, speakUseCase: SpeakTextUseCase) {
         this.useCase = useCase;
+        this.speakUseCase = speakUseCase;
     }
 
     public getState(): HistoryState {
@@ -83,7 +85,7 @@ export class HistoryViewModel {
     public deleteItem = async (text: string) => {
         // 如果正在播放被删除的项，停止播放
         if (this.state.speakingItem === text) {
-            this.useCase.stopAudio();
+            this.speakUseCase.stop();
             this.setState({ speakingItem: null });
         }
 
@@ -93,22 +95,22 @@ export class HistoryViewModel {
 
     public toggleSpeak = (text: string) => {
         if (this.state.speakingItem === text) {
-            this.useCase.stopAudio();
+            this.speakUseCase.stop();
             this.setState({ speakingItem: null });
             return;
         }
 
-        this.useCase.stopAudio();
+        this.speakUseCase.stop();
         this.setState({ speakingItem: text });
 
-        this.useCase.playAudio(text)
+        this.speakUseCase.execute(text)
             .then(() => this.setState({ speakingItem: null }))
             .catch(() => this.setState({ speakingItem: null }));
     }
 
     public stopSpeak = () => {
         if (this.state.speakingItem) {
-            this.useCase.stopAudio();
+            this.speakUseCase.stop();
             this.setState({ speakingItem: null });
         }
     }

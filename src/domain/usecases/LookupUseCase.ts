@@ -1,5 +1,4 @@
 import { ITranslator } from '@/domain/repositories/ITranslator';
-import { ITextToSpeech } from '@/domain/repositories/ITextToSpeech';
 import { ITranslationRepository } from '@/domain/repositories/ITranslationRepository';
 
 /**
@@ -9,7 +8,6 @@ import { ITranslationRepository } from '@/domain/repositories/ITranslationReposi
 export class LookupUseCase {
   constructor(
     private translator: ITranslator,
-    private tts: ITextToSpeech,
     private repository?: ITranslationRepository // 选填，支持无缓存模式
   ) { }
 
@@ -23,16 +21,13 @@ export class LookupUseCase {
     // 1. 尝试从仓库获取缓存
     if (this.repository) {
       const cached = await this.repository.get(trimmedText);
-      // console.log(`[LinxTrans] Cache hit: "${trimmedText}"`);
       if (cached) {
-        // console.log(`[LinxTrans] Cache hit: "${trimmedText}"`);
         return cached;
       }
     }
 
     // 2. 缓存未击中，执行网络请求翻译
     const result = await this.translator.translate(trimmedText);
-    // console.log(`[LinxTrans] Cache miss: "${trimmedText}"`);
 
     // 4. 将结果持久化到仓库
     if (this.repository) {
@@ -40,14 +35,5 @@ export class LookupUseCase {
     }
 
     return result;
-  }
-
-  async playAudio(text: string): Promise<void> {
-    this.tts.stop();
-    return this.tts.speak(text);
-  }
-
-  stopAudio() {
-    this.tts.stop();
   }
 }

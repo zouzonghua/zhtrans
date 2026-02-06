@@ -7,11 +7,17 @@ import { HistoryUseCase } from '@/domain/usecases/HistoryUseCase';
  * useHistoryModel
  * 连接 Preact UI 与 HistoryViewModel
  */
-export function useHistoryModel(useCase: HistoryUseCase) {
+import { SpeakTextUseCase } from '@/domain/usecases/SpeakTextUseCase';
+
+/**
+ * useHistoryModel
+ * 连接 Preact UI 与 HistoryViewModel
+ */
+export function useHistoryModel(useCase: HistoryUseCase, speakUseCase: SpeakTextUseCase) {
     // 依赖注入 (DI): 直接使用传入的 UseCase
     const viewModel = useMemo(() => {
-        return new HistoryViewModel(useCase);
-    }, [useCase]);
+        return new HistoryViewModel(useCase, speakUseCase);
+    }, [useCase, speakUseCase]);
 
     const [state, setState] = useState<HistoryState>(viewModel.getState());
 

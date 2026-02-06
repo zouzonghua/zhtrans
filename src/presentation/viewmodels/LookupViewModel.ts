@@ -1,5 +1,6 @@
 import { Translation } from '@/domain/entities/Translation';
 import { LookupUseCase } from '@/domain/usecases/LookupUseCase';
+import { SpeakTextUseCase } from '@/domain/usecases/SpeakTextUseCase';
 import { calculatePopupPosition, PopupPosition } from '@/presentation/ui/utils/positioning';
 
 // UI 状态定义 (框架无关)
@@ -31,22 +32,20 @@ const INITIAL_STATE: LookupState = {
 
 type Listener = (state: LookupState) => void;
 
-/**
- * Lookup 纯视图模型
- * 
- * 这是一个纯 TypeScript 类，不依赖 React/Vue 等任何 UI 框架。
- * 它管理了应用所有的状态和交互逻辑。
- */
+// ... (State interface remains same)
+
 export class LookupViewModel {
     private state: LookupState = { ...INITIAL_STATE };
     private listeners: Listener[] = [];
     private useCase: LookupUseCase;
+    private speakUseCase: SpeakTextUseCase;
     private requestId = 0;
     private activeRequestId = 0;
     private lastRequest: { text: string; rect: { top: number; right: number; bottom: number; left: number; width: number; height: number } } | null = null;
 
-    constructor(useCase: LookupUseCase) {
+    constructor(useCase: LookupUseCase, speakUseCase: SpeakTextUseCase) {
         this.useCase = useCase;
+        this.speakUseCase = speakUseCase;
     }
 
     // --- 核心: 状态管理 (发布/订阅模式) ---
@@ -155,7 +154,7 @@ export class LookupViewModel {
     public speak = () => {
         if (this.state.result) {
             this.setState({ isSpeaking: true });
-            this.useCase.playAudio(this.state.result.original)
+            this.speakUseCase.execute(this.state.result.original)
                 .then(() => this.setState({ isSpeaking: false }))
                 .catch(() => this.setState({ isSpeaking: false }));
         }
@@ -163,7 +162,7 @@ export class LookupViewModel {
 
     public stopSpeak = () => {
         if (this.state.isSpeaking) {
-            this.useCase.stopAudio();
+            this.speakUseCase.stop();
             this.setState({ isSpeaking: false });
         }
     }
@@ -200,7 +199,7 @@ export class LookupViewModel {
             isLoading: false
         });
         this._currentSelection = null;
-        this.useCase.stopAudio();
+        this.speakUseCase.stop();
     }
 
     // 手动触发关闭 (例如从 UI 遮罩层点击)

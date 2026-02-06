@@ -1,4 +1,3 @@
-import { h } from 'preact';
 import { SearchIcon, LoadingIcon } from '@/presentation/ui/common/icons';
 
 interface TriggerProps {

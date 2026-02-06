@@ -14,14 +14,17 @@ import { mountLookupUI } from '@/presentation/ui/content/mount';
  * 3. 将插件功能注入到当前浏览的网页中
  */
 
+import { SpeakTextUseCase } from '@/domain/usecases/SpeakTextUseCase';
+
 // 1. 初始化依赖 (Dependency Injection)
 // 在这里手动组装对象图 (Object Graph)，这是 Pure DI 的最佳实践
 const translator = new GoogleTranslator();
-const tts = new WebSpeechService();
 const repository = new ChromeTranslationRepository();
-const useCase = new LookupUseCase(translator, tts, repository);
+const tts = new WebSpeechService();
+const useCase = new LookupUseCase(translator, repository);
+const speakUseCase = new SpeakTextUseCase(tts);
 
 // 2. 初始化 UI (Preact)
 // Content Script 需要 mountLookupUI 来创建 Shadow DOM，防止宿主网页的 CSS 污染我们的组件
-mountLookupUI(useCase);
+mountLookupUI(useCase, speakUseCase);
 
