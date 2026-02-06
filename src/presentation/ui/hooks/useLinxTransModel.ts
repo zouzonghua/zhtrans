@@ -3,6 +3,8 @@ import { Translation } from '@/domain/entities/Translation';
 import { LinxTransViewModel, LinxTransState } from '@/presentation/viewmodels/LinxTransViewModel';
 import { LookupUseCase } from '@/domain/usecases/LookupUseCase';
 import { useDismissal } from './useDismissal';
+import { useSelectionTrigger } from './useSelectionTrigger';
+import { useShortcuts } from './useShortcuts';
 
 interface UseLinxTransModelProps {
     /** 翻译回调 */
@@ -19,7 +21,7 @@ interface UseLinxTransModelProps {
  * 职责：
  * 1. 实例化纯 TypeScript 的 ViewModel (LinxTransViewModel)
  * 2. 将 ViewModel 的状态桥接到 Preact 的响应式系统 (State Binding)
- * 3. 管理生命周期 (Mount/Unmount)
+ * 3. 负责"平台适配"：使用 Hooks 监听 DOM 事件并转发给 ViewModel
  */
 export function useLinxTransModel({ onTranslate, onSpeak, onStopSpeak }: UseLinxTransModelProps) {
     const translateRef = useRef(onTranslate);
@@ -38,14 +40,8 @@ export function useLinxTransModel({ onTranslate, onSpeak, onStopSpeak }: UseLinx
         stopSpeakRef.current = onStopSpeak;
     }, [onStopSpeak]);
 
-    // 1. 实例化纯 ViewModel (保持引用稳定)
-    // 在真正的依赖注入(DI)系统中，这里通常通过 useDI() 或 Context 获取
+    // 1. 实例化纯 ViewModel
     const viewModel = useMemo(() => {
-        // 临时方案：我们在构造 ViewModel 时创建一个 "代理 UseCase"。
-        // 理想情况下，LinxTransViewModel 应该通过依赖注入 (DI) 接收一个完整的 LookupUseCase。
-
-        // 这里的 onTranslate prop 实际上直接执行了用例逻辑 (在 content.ts 中定义)，
-        // 所以我们将其包装成 UseCase 接口的形式。
         const useCaseProxy = {
             execute: (text: string) => translateRef.current(text),
             playAudio: (text: string) => speakRef.current(text),
@@ -53,45 +49,60 @@ export function useLinxTransModel({ onTranslate, onSpeak, onStopSpeak }: UseLinx
         } as unknown as LookupUseCase;
 
         return new LinxTransViewModel(useCaseProxy);
-    }, []); // 依赖数组为空 = 仅在组件挂载时创建一次
+    }, []);
 
-    // 2. 状态绑定 (将 ViewModel 的 state 同步到 Preact)
+    // 2. 状态绑定
     const [state, setState] = useState<LinxTransState>(viewModel.getState());
 
-    // 3. 生命周期与订阅
     useEffect(() => {
-        // 挂载逻辑 (添加 DOM 监听等)
-        viewModel.mount();
-
-        // 订阅状态变更
         const unsubscribe = viewModel.subscribe((newState) => {
-            setState({ ...newState }); // 展开对象以确保引用变化，触发 React 更新
+            setState({ ...newState });
         });
-
-        // 卸载逻辑
-        return () => {
-            unsubscribe();
-            viewModel.unmount();
-        };
+        return unsubscribe;
     }, [viewModel]);
 
+    // 3. 平台适配 (Platform Adapters) -> DOM 事件监听
+
+    // 监听鼠标选区 -> ViewModel.showTrigger
+    useSelectionTrigger((info) => {
+        // 只有当没有弹窗结果时才显示触发图标 (保持原有体验)
+        // 或者让 ViewModel 自己决定？我们在 Hook 中做了基础校验
+        // 这里直接转发给 ViewModel
+        viewModel.showTrigger(info.triggerPos.x, info.triggerPos.y, info.text, info.rect);
+    });
+
+    // 监听键盘快捷键 -> ViewModel.translate / toggleSpeak
+    useShortcuts({
+        onTranslate: (text, rect) => {
+            // 隐藏触发图标 (如果存在)
+            // 触发翻译
+            viewModel.translate(text, rect);
+        },
+        onSpeak: (text, rect) => {
+            // 逻辑分流:
+            // 1. 如果已有结果显示，则切换当前播放状态 (Play/Pause)
+            // 2. 如果没有结果，但有选区，则执行"翻译并朗读" (Translate & Speak)
+
+            const currentState = viewModel.getState();
+
+            if (currentState.result) {
+                viewModel.toggleSpeak();
+            } else if (text && rect) {
+                // 隐藏触发图标 (如果存在)
+                viewModel.showTrigger(rect.right + 2, rect.top - 28, text, rect); // 甚至不需要 update state，直接 translate 会清空 trigger
+                // 但为了严谨，直接调用 translateAndSpeak
+                viewModel.translateAndSpeak(text, rect);
+            }
+        }
+    });
+
     // 4. 关闭逻辑 (复用现有的 View Helper Hook)
-    // 纯 ViewModel 处理内部状态重置，但"点击外部关闭"和"滚动隐藏"
-    // 依赖于 DOM 事件和特定行为，目前作为 View 的辅助逻辑保留在 Hook 中。
-    // 未来可以将这部分逻辑也移入 ViewModel 的 mount/unmount 中监听。
-
-    // 我们传入 viewModel.reset 作为回调，当触发关闭条件（如滚动）时重置 VM 状态。
     const { isClosing } = useDismissal(state.result, viewModel.reset, state.triggerPos);
-
-    // 组合 VM 的状态与本地 UI 状态 (动画状态 isClosing)
-    // Note: `isClosing` is purely cosmetic state for animation, acceptable to stay in View layer
-    // or be merged into VM state. The VM has `isClosing` in definition but maybe not logic?
-    // Let's just override/merge.
 
     return {
         state: {
             ...state,
-            isClosing // Use the hook's animation state for now
+            isClosing
         },
         actions: {
             handleTriggerClick: viewModel.handleTriggerClick,
