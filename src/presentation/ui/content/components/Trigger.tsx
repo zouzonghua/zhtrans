@@ -1,4 +1,4 @@
-import { SearchIcon, LoadingIcon } from '@/presentation/ui/common/icons';
+import { SearchIcon, LoadingIcon } from '@/presentation/ui/shared/icons';
 
 interface TriggerProps {
   x: number;

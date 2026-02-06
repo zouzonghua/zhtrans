@@ -1,4 +1,4 @@
-import { POPUP_WIDTH, HEIGHT_DICT, HEIGHT_SIMPLE, OFFSET_POPUP_TOP_MARGIN, OFFSET_POPUP_BOTTOM_MARGIN, POPUP_OFFSET_X_MIN } from '@/presentation/ui/common/constants';
+import { POPUP_WIDTH, HEIGHT_DICT, HEIGHT_SIMPLE, OFFSET_POPUP_TOP_MARGIN, OFFSET_POPUP_BOTTOM_MARGIN, POPUP_OFFSET_X_MIN } from '@/presentation/ui/content/constants';
 
 export interface PopupPosition {
     x: number;

@@ -1,5 +1,5 @@
-import { SpeakIcon } from '@/presentation/ui/common/icons';
-import { useHistoryModel } from '@/presentation/ui/hooks/useHistoryModel';
+import { SpeakIcon } from '@/presentation/ui/shared/icons';
+import { useHistoryModel } from '@/presentation/ui/popup/hooks/useHistoryModel';
 import { HistoryUseCase } from '@/domain/usecases/HistoryUseCase';
 import styles from './history.css?inline';
 

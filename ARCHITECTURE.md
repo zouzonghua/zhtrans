@@ -39,21 +39,20 @@ src/
 │   │   │   ├── popup.tsx           # Popup 入口
 │   │   │   └── popup.html          # Popup HTML
 │   │   ├── content/                # Content Script UI 组件
-│   │   │   ├── LinxTransApp.tsx    # 根组件
-│   │   │   ├── Popup.tsx           # 翻译弹窗
-│   │   │   ├── TranslationContent.tsx # 翻译内容
-│   │   │   ├── Trigger.tsx         # 触发器
-│   │   │   └── styles.css          # 样式
+│   │   │   ├── components/         # 子组件
+│   │   │   │   ├── Popup.tsx       # 翻译弹窗
+│   │   │   │   ├── TranslationContent.tsx # 翻译内容
+│   │   │   │   └── Trigger.tsx     # 触发器
+│   │   │   ├── hooks/              # 专用 Hooks (useLookupModel...)
+│   │   │   ├── LookupApp.tsx       # 根组件
+│   │   │   ├── constants.ts        # 专用常量
+│   │   │   └── lookup.css          # 样式
 │   │   ├── popup/                  # Extension Popup UI
+│   │   │   ├── hooks/              # 专用 Hooks (useHistoryModel...)
 │   │   │   ├── HistoryApp.tsx      # 历史记录应用
 │   │   │   └── history.css         # 历史记录样式
-│   │   ├── common/                 # 通用组件和常量
-│   │   │   ├── index.tsx           # UI 初始化
-│   │   │   ├── icons.tsx           # 图标组件
-│   │   │   └── constants.ts        # 常量定义
-│   │   ├── hooks/                  # React/Preact Hooks
-│   │   │   ├── useLinxTransModel.ts # ViewModel 绑定
-│   │   │   └── useDismissal.ts     # 关闭逻辑
+│   │   ├── shared/                 # [Shared] 跨环境共享组件
+│   │   │   └── icons.tsx           # 图标组件
 │   │   └── utils/                  # UI 工具函数
 │   │       ├── positioning.ts      # 位置计算
 │   │       └── positioning.test.ts # 位置测试

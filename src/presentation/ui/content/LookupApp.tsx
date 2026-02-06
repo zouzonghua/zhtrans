@@ -1,9 +1,9 @@
 
-import { Trigger } from './Trigger';
-import { Popup } from './Popup';
-import { TranslationContent } from './TranslationContent';
+import { Trigger } from './components/Trigger';
+import { Popup } from './components/Popup';
+import { TranslationContent } from './components/TranslationContent';
 import { LookupUseCase } from '@/domain/usecases/LookupUseCase';
-import { useLookupModel } from '@/presentation/ui/hooks/useLookupModel';
+import { useLookupModel } from '@/presentation/ui/content/hooks/useLookupModel';
 
 import { SpeakTextUseCase } from '@/domain/usecases/SpeakTextUseCase';
 

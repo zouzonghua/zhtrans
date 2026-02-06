@@ -25,14 +25,17 @@ LinxTrans/
 ├── src/
 │   ├── presentation/         # [Presentation Layer] 表现层
 │   │   ├── ui/               # UI 组件
-│   │   │   ├── chrome/       # Chrome Extension 入口
+│   │   ├── chrome/       # Chrome Extension 入口
 │   │   │   │   ├── content.ts    # Content Script 入口
 │   │   │   │   ├── background.ts # Service Worker
 │   │   │   │   └── popup.html    # Popup 页面
-│   │   │   ├── common/       # 通用 UI 代码
-│   │   │   ├── content/      # Content Script 组件
-│   │   │   ├── popup/        # Popup 组件
-│   │   │   ├── hooks/        # React Hooks
+│   │   │   ├── content/      # Content Script 组件 (划词翻译)
+│   │   │   │   ├── components/ #   - 子组件 (Popup, Trigger)
+│   │   │   │   ├── hooks/      #   - 专用 Hooks
+│   │   │   │   └── constants.ts#   - 专用常量
+│   │   │   ├── popup/        # Popup 组件 (历史记录)
+│   │   │   │   └── hooks/      #   - 专用 Hooks
+│   │   │   ├── shared/       # [Shared] 跨环境共享 (Icons)
 │   │   │   └── utils/        # UI 工具函数
 │   │   └── viewmodels/       # ViewModels (状态管理)
 │   │       └── LinxTransViewModel.ts
