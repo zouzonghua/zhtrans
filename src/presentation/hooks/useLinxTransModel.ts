@@ -96,7 +96,9 @@ export function useLinxTransModel({ onTranslate, onSpeak, onStopSpeak }: UseLinx
         actions: {
             handleTriggerClick: viewModel.handleTriggerClick,
             handleExternalClick: viewModel.handleExternalClick,
-            handleSpeak: viewModel.speak
+            handleSpeak: viewModel.speak,
+            handleRetry: viewModel.retryLast,
+            handleReposition: viewModel.updatePopupPosition
         }
     };
 }

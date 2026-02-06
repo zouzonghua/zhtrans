@@ -20,8 +20,8 @@ interface Props {
  */
 export const LinxTransApp = (props: Props) => {
   const { state, actions } = useLinxTransModel(props);
-  const { triggerPos, popupPos, isLoading, result, isSpeaking, isClosing } = state;
-  const { handleTriggerClick, handleExternalClick, handleSpeak } = actions;
+  const { triggerPos, popupPos, isLoading, result, isSpeaking, isClosing, error } = state;
+  const { handleTriggerClick, handleExternalClick, handleSpeak, handleRetry, handleReposition } = actions;
 
   return (
     <div id="linxtrans-wrapper">
@@ -34,17 +34,20 @@ export const LinxTransApp = (props: Props) => {
         />
       )}
 
-      {popupPos && (result || isLoading) && (
+      {popupPos && (result || isLoading || error) && (
         <Popup
           {...popupPos}
           className={isClosing ? 'linxtrans-popup--closing' : ''}
           onExternalClick={handleExternalClick}
+          onReposition={handleReposition}
         >
           <TranslationContent
             result={result}
             isLoading={isLoading}
             isSpeaking={isSpeaking}
             onSpeak={handleSpeak}
+            error={error}
+            onRetry={handleRetry}
           />
         </Popup>
       )}

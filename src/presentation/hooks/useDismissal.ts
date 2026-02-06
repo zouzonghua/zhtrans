@@ -52,13 +52,19 @@ export function useDismissal(
             }
         };
 
+        const handleHideEvent = () => {
+            fadeOutAndHide();
+        };
+
         window.addEventListener('scroll', handleScroll, { capture: true, passive: true });
+        window.addEventListener('linxtrans:hide', handleHideEvent);
 
         // 暴露给全局 (window.linxtransHideAll)
         (window as any).linxtransHideAll = fadeOutAndHide;
 
         return () => {
             window.removeEventListener('scroll', handleScroll, { capture: true });
+            window.removeEventListener('linxtrans:hide', handleHideEvent);
             delete (window as any).linxtransHideAll;
         };
     }, [fadeOutAndHide, onReset]);

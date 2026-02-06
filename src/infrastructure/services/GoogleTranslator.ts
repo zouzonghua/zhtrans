@@ -13,23 +13,42 @@ export class GoogleTranslator implements ITranslator {
   async translate(text: string): Promise<Translation> {
     const isChinese = /[\u4e00-\u9fa5]/.test(text);
     const targetLang = isChinese ? 'en' : 'zh-CN';
+    const TRANSLATE_TIMEOUT_MS = 8000;
 
     if (typeof chrome === 'undefined' || !chrome.runtime) {
       throw new Error("Extension context invalidated. Please refresh the page.");
     }
 
     return new Promise((resolve, reject) => {
+      let settled = false;
+      const finalizeReject = (error: Error) => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timeoutId);
+        reject(error);
+      };
+      const finalizeResolve = (value: Translation) => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timeoutId);
+        resolve(value);
+      };
+      const timeoutId = setTimeout(() => {
+        finalizeReject(new Error('Translation timed out.'));
+      }, TRANSLATE_TIMEOUT_MS);
+
       chrome.runtime.sendMessage({ action: "translate", text, targetLang }, (response) => {
+        if (settled) return;
         if (chrome.runtime.lastError) {
-          return reject(new Error(chrome.runtime.lastError.message));
+          return finalizeReject(new Error(chrome.runtime.lastError.message));
         }
 
         if (!response) {
-          return reject(new Error('No response from background script.'));
+          return finalizeReject(new Error('No response from background script.'));
         }
 
         if (!response.success) {
-          return reject(new Error(response.error || 'Translation failed.'));
+          return finalizeReject(new Error(response.error || 'Translation failed.'));
         }
 
         try {
@@ -74,7 +93,7 @@ export class GoogleTranslator implements ITranslator {
             }));
           }
 
-          resolve({
+          finalizeResolve({
             original: text,
             translated: translation,
             phonetic: typeof phonetic === 'string' ? phonetic : undefined,
@@ -83,7 +102,7 @@ export class GoogleTranslator implements ITranslator {
             targetLang
           });
         } catch (error) {
-          reject(error instanceof Error ? error : new Error('Unexpected translation response.'));
+          finalizeReject(error instanceof Error ? error : new Error('Unexpected translation response.'));
         }
       });
     });

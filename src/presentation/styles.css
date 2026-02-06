@@ -190,6 +190,33 @@
   @apply animate-pulse;
 }
 
+.linxtrans-btn--retry {
+  @apply px-3 py-1.5 text-xs rounded-md border;
+  border-color: var(--line);
+  color: var(--text);
+  background: rgba(0, 0, 0, 0.04);
+}
+
+@media (prefers-color-scheme: dark) {
+  .linxtrans-btn--retry {
+    background: rgba(255, 255, 255, 0.06);
+  }
+}
+
+.linxtrans-error {
+  @apply flex flex-col gap-2;
+  color: var(--text);
+}
+
+.linxtrans-error__title {
+  @apply text-sm font-semibold;
+}
+
+.linxtrans-error__message {
+  @apply text-xs opacity-80 break-words;
+  color: var(--sub);
+}
+
 
 
 

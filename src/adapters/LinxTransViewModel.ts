@@ -13,6 +13,7 @@ export interface LinxTransState {
     result: Translation | null;
     popupPos: PopupPosition | null;
     isSpeaking: boolean;
+    error: string | null;
 
     // 关闭/销毁状态
     isClosing: boolean;
@@ -25,6 +26,7 @@ const INITIAL_STATE: LinxTransState = {
     result: null,
     popupPos: null,
     isSpeaking: false,
+    error: null,
     isClosing: false
 };
 
@@ -40,6 +42,9 @@ export class LinxTransViewModel {
     private state: LinxTransState = { ...INITIAL_STATE };
     private listeners: Listener[] = [];
     private useCase: LookupUseCase;
+    private requestId = 0;
+    private activeRequestId = 0;
+    private lastRequest: { text: string; rect: DOMRect } | null = null;
 
     constructor(useCase: LookupUseCase) {
         this.useCase = useCase;
@@ -88,6 +93,12 @@ export class LinxTransViewModel {
 
         const sel = window.getSelection();
         const text = sel?.toString().trim();
+
+        if (text && (this.state.result || this.state.isLoading || this.state.error)) {
+            if (this.lastRequest && text === this.lastRequest.text) {
+                return;
+            }
+        }
 
         if (text && text.length > 0 && text.length < SELECTION_MAX_LENGTH) {
             const range = sel!.getRangeAt(0);
@@ -174,17 +185,23 @@ export class LinxTransViewModel {
     }
 
     public async translate(text: string, rect: DOMRect) {
+        const requestId = ++this.requestId;
+        this.activeRequestId = requestId;
+        this.lastRequest = { text, rect };
+
         // 初始加载位置
         const initialPos = calculatePopupPosition(rect, window.innerWidth, window.innerHeight, false);
         this.setState({
             isLoading: true,
             popupPos: initialPos,
             result: null,
-            triggerPos: null
+            triggerPos: null,
+            error: null
         });
 
         try {
             const result = await this.useCase.execute(text);
+            if (this.activeRequestId !== requestId) return;
 
             // 最终位置 (根据结果大小调整)
             const finalPos = calculatePopupPosition(
@@ -200,8 +217,10 @@ export class LinxTransViewModel {
                 popupPos: finalPos
             });
         } catch (error) {
+            if (this.activeRequestId !== requestId) return;
             console.error(error);
-            this.setState({ isLoading: false });
+            const message = error instanceof Error ? error.message : 'Translation failed.';
+            this.setState({ isLoading: false, error: message });
         }
     }
 
@@ -235,12 +254,15 @@ export class LinxTransViewModel {
     }
 
     public reset = () => {
+        this.activeRequestId = ++this.requestId;
         // 动画关闭？
         // 先实现简单逻辑：
         this.setState({
             triggerPos: null,
             result: null,
-            popupPos: null
+            popupPos: null,
+            error: null,
+            isLoading: false
         });
         this._currentSelection = null;
         this.useCase.stopAudio();
@@ -250,5 +272,36 @@ export class LinxTransViewModel {
     public dismiss = () => {
         // 如果需要，可以在这里实现关闭动画逻辑，或者直接重置
         this.reset();
+    }
+
+    public retryLast = () => {
+        if (this.lastRequest) {
+            this.translate(this.lastRequest.text, this.lastRequest.rect);
+        }
+    }
+
+    public updatePopupPosition = (popupRect: DOMRect) => {
+        if (!this.lastRequest || !this.state.popupPos) return;
+        const isDictionary = !!this.state.result?.dictionary && this.state.result.dictionary.length > 0;
+        const nextPos = calculatePopupPosition(
+            this.lastRequest.rect,
+            window.innerWidth,
+            window.innerHeight,
+            isDictionary,
+            { width: popupRect.width, height: popupRect.height }
+        );
+
+        const current = this.state.popupPos;
+        const epsilon = 0.5;
+        if (
+            Math.abs(current.x - nextPos.x) < epsilon &&
+            Math.abs(current.y - nextPos.y) < epsilon &&
+            Math.abs(current.tailPos - nextPos.tailPos) < epsilon &&
+            current.isBottom === nextPos.isBottom
+        ) {
+            return;
+        }
+
+        this.setState({ popupPos: nextPos });
     }
 }

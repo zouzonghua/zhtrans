@@ -37,8 +37,8 @@ export function initUI(useCase: LookupUseCase) {
    */
   document.addEventListener('mousedown', (e) => {
     const target = e.target as HTMLElement;
-    if (target.id !== 'linxtrans-host' && (window as any).linxtransHideAll) {
-      (window as any).linxtransHideAll();
+    if (target.id !== 'linxtrans-host') {
+      window.dispatchEvent(new CustomEvent('linxtrans:hide'));
     }
   });
 }

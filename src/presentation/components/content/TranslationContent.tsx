@@ -7,12 +7,14 @@ interface ContentProps {
   isLoading: boolean;
   isSpeaking: boolean;
   onSpeak: () => void;
+  error?: string | null;
+  onRetry?: () => void;
 }
 
 /**
  * 翻译内容组件：根据数据自动切换单词/句子布局
  */
-export const TranslationContent = ({ result, isLoading, isSpeaking, onSpeak }: ContentProps) => {
+export const TranslationContent = ({ result, isLoading, isSpeaking, onSpeak, error, onRetry }: ContentProps) => {
   if (isLoading) {
     return (
       <div className="linxtrans-popup__content">
@@ -24,6 +26,22 @@ export const TranslationContent = ({ result, isLoading, isSpeaking, onSpeak }: C
           <div className="linxtrans-skeleton__line" style={{ width: '80%' }}></div>
           <div className="linxtrans-skeleton__line" style={{ width: '40%' }}></div>
           <div className="linxtrans-skeleton__line" style={{ width: '70%' }}></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="linxtrans-popup__content">
+        <div className="linxtrans-error">
+          <div className="linxtrans-error__title">翻译失败</div>
+          <div className="linxtrans-error__message">{error}</div>
+          {onRetry && (
+            <button className="linxtrans-btn linxtrans-btn--retry" onClick={onRetry}>
+              重试
+            </button>
+          )}
         </div>
       </div>
     );
