@@ -1,3 +1,7 @@
+/* LinxTransApp Styles */
+@import "tailwindcss";
+
+
 :host {
   --bg: rgba(238, 238, 238, 0.72);
   --text: #1d1d1f;
@@ -11,297 +15,213 @@
 
 @media (prefers-color-scheme: dark) {
   :host {
-    --bg: rgba(45, 45, 45, 0.8);
-    --text: #f5f5f7;
-    --sub: #a1a1a6;
+    --bg: rgba(30, 30, 30, 0.85);
+    --text: #ffffff;
+    --sub: #98989d;
     --line: rgba(255, 255, 255, 0.12);
   }
 }
 
 /* Trigger Block */
+/* Trigger Block */
 .linxtrans-trigger {
-  position: fixed;
-  width: 26px;
-  height: 26px;
-  background: white;
-  border-radius: 50%;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2147483647;
-  cursor: pointer;
-  border: 0.5px solid rgba(0, 0, 0, 0.05);
+  @apply fixed w-[28px] h-[28px] bg-white rounded-full flex items-center justify-center z-[2147483647] cursor-pointer border shadow-lg transition-all duration-200;
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+@media (prefers-color-scheme: dark) {
+  .linxtrans-trigger {
+    @apply bg-[#2c2c2e]/90 backdrop-blur-sm;
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+}
+
+.linxtrans-trigger:hover {
+  @apply scale-110 shadow-xl;
+  transform: translateY(-1px) scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .linxtrans-trigger svg {
-  width: 14px;
-  height: 14px;
+  @apply w-4 h-4;
   fill: var(--accent);
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
 }
 
 .linxtrans-trigger--loading #loading-icon {
-  display: flex !important;
-  animation: rotate 1s linear infinite;
+  @apply !flex animate-spin;
 }
 
 .linxtrans-trigger--loading #search-icon {
-  display: none !important;
+  @apply !hidden;
 }
 
 /* Popup Block */
 .linxtrans-popup {
-  position: fixed;
-  width: 320px;
+  @apply fixed w-[320px] rounded-2xl flex flex-col z-[2147483647] border transition-all duration-200 origin-center;
   background: var(--bg);
-  backdrop-filter: blur(40px) saturate(180%);
-  border-radius: 12px;
-  box-shadow: var(--shadow);
-  display: flex;
-  flex-direction: column;
-  z-index: 2147483647;
-  animation: spring 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.1);
-  border: 0.5px solid rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(50px) saturate(180%);
+  border-color: var(--line);
+  /* Use drop-shadow filter to create a unified shadow for popup + tail */
+  filter: drop-shadow(0 8px 32px rgba(0, 0, 0, 0.2));
 }
 
 .linxtrans-popup--closing {
-  animation: fade-out 0.2s ease forwards;
+  @apply opacity-0 scale-95;
 }
 
-@keyframes fade-out {
-  from {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-
-  to {
-    opacity: 0;
-    transform: scale(0.95) translateY(4px);
+@media (prefers-color-scheme: dark) {
+  .linxtrans-popup {
+    /* Slightly different shadow for dark mode visibility */
+    filter: drop-shadow(0 12px 40px rgba(0, 0, 0, 0.4));
   }
 }
 
 .linxtrans-popup__content {
-  padding: 16px;
-  max-height: 400px;
-  overflow-y: auto;
+  @apply p-4 max-h-[400px] overflow-y-auto;
 }
 
 .linxtrans-popup__header {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  margin-bottom: 8px;
+  @apply flex items-start gap-3 mb-1;
 }
 
 .linxtrans-popup__word {
-  font-size: 17px;
-  font-weight: 700;
+  @apply text-xl font-bold leading-tight flex-1 break-words tracking-tight;
   color: var(--text);
-  line-height: 1.3;
-  flex: 1;
-  word-break: break-word;
 }
 
 .linxtrans-popup__phonetic {
-  font-size: 13px;
+  @apply text-sm mt-1 opacity-80;
   color: var(--sub);
   font-family: "SF Pro Text", sans-serif;
-  margin-top: 2px;
 }
 
 .linxtrans-popup__def-row {
-  display: flex;
-  gap: 6px;
-  font-size: 14px;
+  @apply flex gap-2 text-[14px] mb-2 leading-relaxed break-words;
   color: var(--text);
-  margin-bottom: 6px;
-  line-height: 1.5;
-  word-break: break-word;
 }
 
 .linxtrans-popup__footer {
-  height: 32px;
-  background: rgba(0, 0, 0, 0.03);
-  border-top: 0.5px solid var(--line);
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  font-size: 11px;
+  @apply h-10 border-t flex justify-between items-center px-2 text-xs rounded-bl-2xl rounded-br-2xl;
+  background: rgba(0, 0, 0, 0.1);
+  border-color: var(--line);
   color: var(--sub);
-  border-bottom-left-radius: 12px;
-  border-bottom-right-radius: 12px;
+}
+
+@media (prefers-color-scheme: light) {
+  .linxtrans-popup__footer {
+    background: rgba(0, 0, 0, 0.03);
+  }
 }
 
 .linxtrans-popup__footer-item {
-  cursor: pointer;
-  padding: 4px 12px;
-  border-radius: 4px;
-  transition: background 0.2s;
+  @apply cursor-pointer px-3 py-1.5 rounded-md transition-colors duration-200 font-medium opacity-90;
 }
 
 .linxtrans-popup__footer-item:hover {
-  background: rgba(0, 0, 0, 0.05);
+  @apply bg-white/10;
   color: var(--text);
+  opacity: 1;
 }
 
 .linxtrans-popup__section-label {
-  font-size: 11px;
-  font-weight: 600;
+  @apply text-[11px] font-bold mt-4 mb-2 border-t pt-3 uppercase tracking-wider opacity-80;
   color: var(--sub);
-  margin: 12px 0 6px 0;
-  border-top: 0.5px solid var(--line);
-  padding-top: 8px;
-  text-transform: uppercase;
+  border-color: var(--line);
 }
 
 .linxtrans-popup__original {
-  font-size: 13px;
+  @apply text-[13px] mb-3 leading-relaxed italic opacity-90;
   color: var(--sub);
-  margin-bottom: 12px;
-  line-height: 1.4;
-  font-style: italic;
 }
 
 /* Popup Tail Element */
 .linxtrans-popup__tail {
-  position: absolute;
-  left: 50%;
-  width: 16px;
-  height: 8px;
-  pointer-events: none;
+  @apply absolute left-1/2 w-4 h-4 pointer-events-none z-10;
+  transform: translateX(-50%) rotate(45deg);
+  background: var(--bg);
+  backdrop-filter: blur(50px) saturate(180%);
+  /* border: 1px solid var(--line); */
+  /* Shadow handled by parent drop-shadow */
+  box-shadow: none;
 }
 
+/* Remove the old inner triangle logic */
 .linxtrans-popup__tail-in {
-  width: 0;
-  height: 0;
-  border-left: 8px solid transparent;
-  border-right: 8px solid transparent;
+  @apply hidden;
 }
 
+/* Tail at Bottom (Pointing Down): Keep TOP-LEFT triangle (in rotated space) -> No visually that points UP? */
+/* Wait, Box is rotated 45deg. */
+/* Top-Left side and Top-Right side are UP. */
+/* Bottom-Right side and Bottom-Left side are DOWN. */
+/* We want arrow pointing DOWN. So we want the Bottom corner. */
+/* That corresponds to Bottom-Right triangle of unrotated box. */
+/* Clip Path: Keep Bottom-Right half. 0 100, 100 100, 100 0. */
 .linxtrans-popup__tail--bottom {
-  top: -8px;
+  @apply -bottom-2;
+  clip-path: polygon(100% 0, 100% 100%, 0% 100%);
 }
 
-.linxtrans-popup__tail--bottom .linxtrans-popup__tail-in {
-  border-bottom: 8px solid var(--bg);
-}
-
+/* Tail at Top (Pointing Up): Keep TOP-LEFT triangle. */
+/* Clip Path: 0 0, 100 0, 0 100. */
 .linxtrans-popup__tail--top {
-  bottom: -8px;
-}
-
-.linxtrans-popup__tail--top .linxtrans-popup__tail-in {
-  border-top: 8px solid var(--bg);
+  @apply -top-2;
+  clip-path: polygon(0% 0%, 100% 0%, 0% 100%);
 }
 
 /* Button Block */
 .linxtrans-btn {
-  cursor: pointer;
-  border: none;
-  background: none;
-  padding: 2px;
-  display: flex;
-  align-items: center;
+  @apply cursor-pointer border-none bg-transparent p-1 rounded-md flex items-center transition-colors;
+}
+
+.linxtrans-btn:hover {
+  @apply bg-white/10;
 }
 
 .linxtrans-btn svg {
-  width: 14px;
-  height: 14px;
+  @apply w-4 h-4;
   fill: var(--accent);
 }
 
 .linxtrans-btn--speaking {
-  animation: pulse 1.5s infinite;
+  @apply animate-pulse;
 }
 
-@keyframes spring {
-  from {
-    opacity: 0;
-    transform: scale(0.96) translateY(4px);
-  }
 
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
 
-@keyframes rotate {
-  from {
-    transform: rotate(0deg);
-  }
 
-  to {
-    transform: rotate(360deg);
-  }
-}
 
-@keyframes pulse {
-  0% {
-    transform: scale(1);
-    opacity: 1;
-  }
 
-  50% {
-    transform: scale(1.15);
-    opacity: 0.7;
-  }
-
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
 
 /* Utilities */
 .linxtrans-lang-header {
-  font-size: 11px;
+  @apply text-[11px] mb-1.5 flex items-center gap-2 font-medium opacity-90;
   color: var(--sub);
-  margin-bottom: 8px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
 }
 
 .linxtrans-separator {
-  flex: 1;
-  height: 0.5px;
+  @apply flex-1 h-[0.5px];
   background: var(--line);
 }
 
 .linxtrans-phonetic-sub {
-  margin-top: 4px;
-  font-style: italic;
+  @apply mt-0.5 italic opacity-80;
 }
 
 .linxtrans-def-number {
+  @apply min-w-[16px] text-center font-medium opacity-70;
   color: var(--sub);
-  min-width: 14px;
 }
 
 /* Skeleton Loading */
 .linxtrans-skeleton {
-  padding-top: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  @apply pt-2 flex flex-col gap-2.5;
 }
 
 .linxtrans-skeleton__line {
-  height: 12px;
+  @apply h-3 rounded-full animate-pulse;
   background: var(--line);
-  border-radius: 4px;
-  animation: shimmer 1.5s infinite linear;
-  background: linear-gradient(90deg, var(--line) 25%, rgba(0, 0, 0, 0.04) 50%, var(--line) 75%);
-  background-size: 200% 100%;
-}
-
-@keyframes shimmer {
-  0% {
-    background-position: 200% 0;
-  }
-
-  100% {
-    background-position: -200% 0;
-  }
 }

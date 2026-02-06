@@ -18,7 +18,7 @@ export const Popup = ({ x, y, isBottom, tailPos, children, onExternalClick, clas
   <div className={`linxtrans-popup ${className}`} style={{ left: x, top: y }}>
     {/* 定位尖角 */}
     <div
-      className={`linxtrans-popup__tail ${isBottom ? 'linxtrans-popup__tail--bottom' : 'linxtrans-popup__tail--top'}`}
+      className={`linxtrans-popup__tail ${isBottom ? 'linxtrans-popup__tail--top' : 'linxtrans-popup__tail--bottom'}`}
       style={{ left: `${tailPos}%` }}
     >
       <div className="linxtrans-popup__tail-in"></div>

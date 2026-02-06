@@ -17,11 +17,15 @@
   "license": "ISC",
   "type": "commonjs",
   "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.18",
     "@types/chrome": "^0.1.36",
     "@types/node": "^25.2.0",
     "@vitest/ui": "^4.0.18",
+    "autoprefixer": "^10.4.24",
     "concurrently": "^9.2.1",
     "jsdom": "^28.0.0",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.18",
     "typescript": "^5.9.3",
     "vite": "^7.3.1",
     "vitest": "^4.0.18"
