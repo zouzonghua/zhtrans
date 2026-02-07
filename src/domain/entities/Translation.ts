@@ -3,6 +3,9 @@
  * 描述业务核心数据结构，不依赖任何外部逻辑。
  */
 
+/** 翻译类型：划词翻译 or 字幕翻译 */
+export type TranslationType = 'lookup' | 'subtitle';
+
 /** 词典条目：包含词性及对应的释义列表 */
 export interface DictionaryEntry {
   pos: string; // 词性
@@ -18,4 +21,5 @@ export interface Translation {
   srcLang: string;     // 源语种
   targetLang: string;  // 目标语种
   timestamp?: number;  // 翻译时间戳
+  type: TranslationType; // 翻译类型（划词/字幕）
 }

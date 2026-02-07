@@ -42,7 +42,8 @@ export function useHistoryModel(useCase: HistoryUseCase, speakUseCase: SpeakText
             handleDelete: viewModel.deleteItem,
             handleSpeak: viewModel.toggleSpeak,
             handleSearch: viewModel.setSearchQuery,
-            handleLoad: viewModel.loadHistory
+            handleLoad: viewModel.loadHistory,
+            handleTabChange: viewModel.setSelectedTab
         }
     };
 }

@@ -1,8 +1,12 @@
 import { render } from 'preact';
 import { YoutubeSubtitleApp } from '@/presentation/ui/content/youtube/YoutubeSubtitleApp';
 import { TranslateSubtitleUseCase } from '@/domain/usecases/TranslateSubtitleUseCase';
+import { NativeSubtitleController } from '@/presentation/ui/content/youtube/NativeSubtitleController';
 // Probably no styles needed if using inline styles in SubtitleOverlay, or we can use a new css file.
 // For now, let's assume inline styles in SubtitleOverlay are enough or we inject global styles.
+
+// 全局控制器实例，用于管理原生字幕的显示/隐藏
+const nativeSubtitleController = new NativeSubtitleController();
 
 /**
  * 挂载 YouTube 字幕 UI
@@ -10,6 +14,7 @@ import { TranslateSubtitleUseCase } from '@/domain/usecases/TranslateSubtitleUse
  * 核心逻辑：
  * 1. 这是一个 SPA (单页应用) 场景，需要监听 YouTube 的导航事件。
  * 2. 需要将我们的 UI 注入到 YouTube 的视频播放器容器中 (.html5-video-player)，以支持全屏模式。
+ * 3. 自动隐藏 YouTube 原生字幕，避免与翻译字幕重叠。
  */
 export function mountYoutubeSubtitleUI(useCase: TranslateSubtitleUseCase) {
     // 启动即尝试挂载
@@ -84,5 +89,10 @@ function inject(player: Element, useCase: TranslateSubtitleUseCase) {
 
     // 5. 渲染 Preact 应用
     render(<YoutubeSubtitleApp useCase={useCase} />, host);
+
+    // 6. 隐藏 YouTube 原生字幕，避免与翻译字幕重叠
+    nativeSubtitleController.hide();
+
     // console.log('[LinxTrans] UI injected successfully.');
 }
+

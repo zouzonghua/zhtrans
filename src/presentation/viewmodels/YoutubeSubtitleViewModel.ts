@@ -7,6 +7,7 @@ export interface SubtitleState {
     isLoading: boolean;
     error: string | null;
     isVisible: boolean;
+    cacheHit: boolean;  // 是否命中缓存（用于显示绿色指示器）
 }
 
 type Listener = (state: SubtitleState) => void;
@@ -26,6 +27,7 @@ export class YoutubeSubtitleViewModel {
         isLoading: false,
         error: null,
         isVisible: false,
+        cacheHit: false,
     };
 
     private listeners: Listener[] = [];
@@ -77,31 +79,51 @@ export class YoutubeSubtitleViewModel {
         this.listeners.forEach((listener) => listener(this.state));
     }
 
+    private hideTimer: NodeJS.Timeout | null = null;
+
     /**
      * 处理字幕文本变化 (核心逻辑)
      */
     private handleTextChange = (text: string) => {
-        // 1. 立即更新原文，保证 UI 响应速度
-        this.setState({ originalText: text });
+        // 1. 如果有新的文本到来 (非空)
+        if (text.trim()) {
+            // 清除之前的隐藏定时器，保持显示
+            if (this.hideTimer) {
+                clearTimeout(this.hideTimer);
+                this.hideTimer = null;
+            }
 
-        if (!text.trim()) {
-            this.setState({ translatedText: '' });
-            return;
+            // 立即更新原文，保证 UI 响应速度
+            this.setState({ originalText: text });
+
+            // 防抖处理 (Debounce)
+            // 避免因字幕频繁微调或快速变化导致发送过多网络请求
+            if (this.debounceTimer) {
+                clearTimeout(this.debounceTimer);
+            }
+
+            this.setState({ isLoading: true });
+
+            // 100ms 延迟：在人类感知不到的延迟内，合并快速变化的文本事件
+            this.debounceTimer = setTimeout(() => {
+                // console.log('[LinxTrans] Performing translation for:', text);
+                this.performTranslation(text);
+            }, 100); // 100ms debounce (Optimized for real-time)
+        } else {
+            // 2. 如果文本为空 (字幕消失)
+            // 不要立即清空，而是延迟 3 秒，给用户更多阅读时间
+            if (this.hideTimer) {
+                clearTimeout(this.hideTimer);
+            }
+
+            this.hideTimer = setTimeout(() => {
+                this.setState({
+                    originalText: '',
+                    translatedText: ''
+                });
+                this.hideTimer = null;
+            }, 3000); // 3秒延迟 (UX 优化)
         }
-
-        // 2. 防抖处理 (Debounce)
-        // 避免因字幕频繁微调或快速变化导致发送过多网络请求
-        if (this.debounceTimer) {
-            clearTimeout(this.debounceTimer);
-        }
-
-        this.setState({ isLoading: true });
-
-        // 100ms 延迟：在人类感知不到的延迟内，合并快速变化的文本事件
-        this.debounceTimer = setTimeout(() => {
-            // console.log('[LinxTrans] Performing translation for:', text);
-            this.performTranslation(text);
-        }, 100); // 100ms debounce (Optimized for real-time)
     };
 
     /**
@@ -110,19 +132,21 @@ export class YoutubeSubtitleViewModel {
     private async performTranslation(text: string) {
         try {
             const result = await this.useCase.execute(text);
-            console.log('[LinxTrans] Translation result:', result.translated);
+            console.log('[LinxTrans] Translation result:', result.translation.translated, 'fromCache:', result.fromCache);
 
-            // 更新译文
+            // 更新译文和缓存命中状态
             this.setState({
-                translatedText: result.translated,
+                translatedText: result.translation.translated,
                 isLoading: false,
-                error: null
+                error: null,
+                cacheHit: result.fromCache
             });
         } catch (error) {
             console.error('[LinxTrans] Translation failed:', error);
             this.setState({
                 error: (error as Error).message,
-                isLoading: false
+                isLoading: false,
+                cacheHit: false
             });
         }
     }

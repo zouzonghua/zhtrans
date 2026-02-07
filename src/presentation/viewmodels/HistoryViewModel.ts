@@ -1,4 +1,4 @@
-import { Translation } from '@/domain/entities/Translation';
+import { Translation, TranslationType } from '@/domain/entities/Translation';
 import { HistoryUseCase } from '@/domain/usecases/HistoryUseCase';
 import { SpeakTextUseCase } from '@/domain/usecases/SpeakTextUseCase';
 
@@ -9,6 +9,7 @@ export interface HistoryState {
     speakingItem: string | null;
     searchQuery: string;
     filteredHistory: Translation[];
+    selectedTab: 'all' | TranslationType;  // Tab 筛选：全部/划词/字幕
 }
 
 const INITIAL_STATE: HistoryState = {
@@ -16,7 +17,8 @@ const INITIAL_STATE: HistoryState = {
     loading: true,
     speakingItem: null,
     searchQuery: '',
-    filteredHistory: []
+    filteredHistory: [],
+    selectedTab: 'all'
 };
 
 type Listener = (state: HistoryState) => void;
@@ -69,8 +71,8 @@ export class HistoryViewModel {
         // 1. 状态更新 (State Update)
         this.state = { ...this.state, ...partial };
         // 2. 副作用处理与通知 (Side Effects & Notify)
-        // 如果更新了 history 或 searchQuery，自动更新过滤结果
-        if (partial.history || partial.searchQuery !== undefined) {
+        // 如果更新了 history、searchQuery 或 selectedTab，自动更新过滤结果
+        if (partial.history || partial.searchQuery !== undefined || partial.selectedTab !== undefined) {
             this.updateFilteredHistory();
         } else {
             this.notify();
@@ -82,15 +84,28 @@ export class HistoryViewModel {
 
     /**
      * 自动更新过滤后的列表
-     * 当 `history` 原数据变化，或者 `searchQuery` 变化时，重新计算 `filteredHistory`。
+     * 当 `history` 原数据变化，或者 `searchQuery`/`selectedTab` 变化时，重新计算 `filteredHistory`。
      * 这种逻辑放在 VM 里的好处是：UI 层不需要写 useEffect 来监听变化，只需要渲染 `filteredHistory` 即可。
      */
     private updateFilteredHistory() {
         const query = this.state.searchQuery.toLowerCase();
-        const filtered = this.state.history.filter(item =>
-            item.original.toLowerCase().includes(query) ||
-            item.translated.toLowerCase().includes(query)
-        );
+        const tab = this.state.selectedTab;
+
+        let filtered = this.state.history;
+
+        // 1. 按类型筛选
+        if (tab !== 'all') {
+            filtered = filtered.filter(item => item.type === tab);
+        }
+
+        // 2. 按搜索关键词筛选
+        if (query) {
+            filtered = filtered.filter(item =>
+                item.original.toLowerCase().includes(query) ||
+                item.translated.toLowerCase().includes(query)
+            );
+        }
+
         this.state = { ...this.state, filteredHistory: filtered };
         this.notify();
     }
@@ -147,5 +162,9 @@ export class HistoryViewModel {
 
     public setSearchQuery = (query: string) => {
         this.setState({ searchQuery: query });
+    }
+
+    public setSelectedTab = (tab: 'all' | TranslationType) => {
+        this.setState({ selectedTab: tab });
     }
 }

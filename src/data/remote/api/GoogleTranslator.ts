@@ -1,4 +1,4 @@
-import { Translation, DictionaryEntry } from '@/domain/entities/Translation';
+import { Translation, DictionaryEntry, TranslationType } from '@/domain/entities/Translation';
 import { ITranslator } from '@/domain/repositories/ITranslator';
 
 /**
@@ -10,6 +10,8 @@ import { ITranslator } from '@/domain/repositories/ITranslator';
  * 3. 负责将外部原始、复杂的 JSON 结构解析为 Domain 层通用的实体。
  */
 export class GoogleTranslator implements ITranslator {
+  constructor(private type: TranslationType = 'lookup') { }
+
   async translate(text: string): Promise<Translation> {
     const isChinese = /[\u4e00-\u9fa5]/.test(text);
     const targetLang = isChinese ? 'en' : 'zh-CN';
@@ -99,7 +101,8 @@ export class GoogleTranslator implements ITranslator {
             phonetic: typeof phonetic === 'string' ? phonetic : undefined,
             dictionary: dictionary.length > 0 ? dictionary : undefined,
             srcLang: data[2],
-            targetLang
+            targetLang,
+            type: this.type  // 添加翻译类型
           });
         } catch (error) {
           finalizeReject(error instanceof Error ? error : new Error('Unexpected translation response.'));
