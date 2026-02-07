@@ -39,14 +39,19 @@ src/
 │   │   │   ├── popup.tsx           # Popup 入口
 │   │   │   └── popup.html          # Popup HTML
 │   │   ├── content/                # Content Script UI 组件
-│   │   │   ├── components/         # 子组件
-│   │   │   │   ├── Popup.tsx       # 翻译弹窗
-│   │   │   │   ├── TranslationContent.tsx # 翻译内容
-│   │   │   │   └── Trigger.tsx     # 触发器
-│   │   │   ├── hooks/              # 专用 Hooks (useLookupModel...)
-│   │   │   ├── LookupApp.tsx       # 根组件
-│   │   │   ├── constants.ts        # 专用常量
-│   │   │   └── lookup.css          # 样式
+│   │   │   ├── lookup/             # 划词翻译功能
+│   │   │   │   ├── components/     #   - 子组件 (Popup, Trigger, etc.)
+│   │   │   │   ├── hooks/          #   - 专用 Hooks (useLookupModel)
+│   │   │   │   ├── LookupApp.tsx   #   - 根组件
+│   │   │   │   ├── mount.tsx       #   - Shadow DOM 挂载逻辑
+│   │   │   │   ├── constants.ts    #   - 专用常量
+│   │   │   │   └── lookup.css      #   - 样式 (Tailwind v4 + CSS Variables)
+│   │   │   └── youtube/            # YouTube 字幕翻译功能
+│   │   │       ├── components/     #   - 字幕覆盖层组件
+│   │   │       ├── hooks/          #   - 专用 Hooks
+│   │   │       ├── observer/       #   - MutationObserver 逻辑
+│   │   │       ├── YoutubeSubtitleApp.tsx
+│   │   │       └── youtube.css     #   - YouTube 样式
 │   │   ├── popup/                  # Extension Popup UI
 │   │   │   ├── hooks/              # 专用 Hooks (useHistoryModel...)
 │   │   │   ├── HistoryApp.tsx      # 历史记录应用
@@ -57,7 +62,8 @@ src/
 │   │       ├── positioning.ts      # 位置计算
 │   │       └── positioning.test.ts # 位置测试
 │   └── viewmodels/                 # ViewModels (MVVM 模式)
-│       └── LinxTransViewModel.ts   # 主 ViewModel
+│       ├── LookupViewModel.ts      # 划词翻译 ViewModel
+│       └── YoutubeSubtitleViewModel.ts # YouTube 字幕 ViewModel
 │
 ├── domain/                         # 领域层（核心，最内层）
 │   ├── entities/                   # 领域实体
@@ -67,8 +73,9 @@ src/
 │   │   ├── ITranslator.ts          # 翻译服务接口
 │   │   └── ITextToSpeech.ts        # 语音服务接口
 │   └── usecases/                   # 用例（业务逻辑）
-│       ├── LookupUseCase.ts        # 查词用例
-│       └── LookupUseCase.test.ts   # 用例测试
+│       ├── LookupUseCase.ts        # 划词查询用例
+│       ├── LookupUseCase.test.ts   # 用例测试
+│       └── TranslateSubtitleUseCase.ts # 字幕翻译用例（带内存缓存）
 │
 └── data/                           # 数据层（外层）
     ├── local/                      # 本地数据源
@@ -443,8 +450,77 @@ describe('LinxTransApp', () => {
 - ✅ 是否有单元测试？
 - ✅ 命名是否符合 Android 规范？
 
+## 特性实现
+
+### YouTube 字幕实时翻译
+
+**功能**：监听 YouTube 字幕变化，实时翻译并覆盖显示。
+
+**架构设计**：
+```typescript
+// Domain Layer
+class TranslateSubtitleUseCase {
+  private memoryCache = new Map<string, Translation>();  // 内存缓存，极速响应
+  
+  async execute(text: string): Promise<Translation> {
+    // 1. 检查内存缓存（最快）
+    // 2. 检查持久化缓存（较快）
+    // 3. 执行网络翻译（最慢）
+  }
+}
+
+// Presentation Layer
+class YoutubeSubtitleViewModel {
+  private debounceTimer: number;
+  
+  onSubtitleChange(text: string) {
+    // 100ms 防抖，合并快速变化的字幕
+    clearTimeout(this.debounceTimer);
+    this.debounceTimer = setTimeout(() => {
+      this.performTranslation(text);
+    }, 100);
+  }
+}
+```
+
+**性能优化**：
+- **双层缓存**：内存缓存（Map）+ 持久化缓存（Repository）
+- **防抖优化**：100ms 延迟，在人类感知不到的延迟内合并事件
+- **MutationObserver**：高效监听 DOM 变化，避免轮询
+
+### Tailwind v4 主题定制（跨站点样式隔离）
+
+**问题**：YouTube 等网站设置 `html { font-size: 10px }`，导致 Tailwind 的 `rem` 单位受影响。
+
+**解决方案**：
+```css
+/* lookup.css */
+@theme {
+  /* 覆盖 Tailwind 默认的 rem 值为固定 px */
+  --text-xl: 20px;
+  --text-sm: 14px;
+  --spacing-4: 16px;
+  /* ... 150+ 变量定义 */
+}
+
+:host {
+  /* Shadow DOM 根元素强制 16px */
+  font-size: 16px !important;
+  
+  /* 自定义非标准尺寸 */
+  --text-2xs: 11px;
+  --text-sm-plus: 13px;
+}
+```
+
+**效果**：
+- ✅ 完全隔离于宿主页面的 `font-size`
+- ✅ 所有 Tailwind 工具类编译为像素值
+- ✅ 在任何网站保持一致的视觉效果
+
 ---
 
-**最后更新**：2026-02-06  
-**架构版本**：2.0.0 (100% Android Clean Architecture Compliant)  
+**最后更新**：2026-02-07  
+**架构版本**：2.1.0 (YouTube Subtitle Feature + Tailwind v4 Isolation)  
 **符合度**：100% ✅
+

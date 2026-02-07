@@ -1,6 +1,6 @@
 import { ComponentChildren } from 'preact';
 import { useEffect, useLayoutEffect, useRef } from 'preact/hooks';
-import { LABEL_DICT, LABEL_WIKI } from '@/presentation/ui/content/constants';
+import { LABEL_DICT, LABEL_WIKI } from '@/presentation/ui/content/lookup/constants';
 
 interface PopupProps {
   x: number;

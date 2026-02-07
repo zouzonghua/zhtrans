@@ -1,8 +1,8 @@
 import { render } from 'preact';
-import { LookupApp } from '@/presentation/ui/content/LookupApp';
+import { LookupApp } from '@/presentation/ui/content/lookup/LookupApp';
 import { LookupUseCase } from '@/domain/usecases/LookupUseCase';
 import { SpeakTextUseCase } from '@/domain/usecases/SpeakTextUseCase';
-import styles from '@/presentation/ui/content/lookup.css?inline';
+import styles from '@/presentation/ui/content/lookup/lookup.css?inline';
 
 export function mountLookupUI(useCase: LookupUseCase, speakUseCase: SpeakTextUseCase) {
   // 创建 Shadow DOM 的宿主元素

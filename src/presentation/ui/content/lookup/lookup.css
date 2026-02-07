@@ -1,6 +1,146 @@
 /* LinxTransApp Styles */
 @import "tailwindcss";
 
+/* Tailwind v4 Theme Customization - Complete rem to px conversion */
+@theme {
+  /* ==================== Font Sizes ==================== */
+  --text-xs: 12px;
+  --text-xs--line-height: 16px;
+
+  --text-sm: 14px;
+  --text-sm--line-height: 20px;
+
+  --text-base: 16px;
+  --text-base--line-height: 24px;
+
+  --text-lg: 18px;
+  --text-lg--line-height: 28px;
+
+  --text-xl: 20px;
+  --text-xl--line-height: 28px;
+
+  --text-2xl: 24px;
+  --text-2xl--line-height: 32px;
+
+  --text-3xl: 30px;
+  --text-3xl--line-height: 36px;
+
+  --text-4xl: 36px;
+  --text-4xl--line-height: 40px;
+
+  --text-5xl: 48px;
+  --text-5xl--line-height: 1;
+
+  --text-6xl: 60px;
+  --text-6xl--line-height: 1;
+
+  --text-7xl: 72px;
+  --text-7xl--line-height: 1;
+
+  --text-8xl: 96px;
+  --text-8xl--line-height: 1;
+
+  --text-9xl: 128px;
+  --text-9xl--line-height: 1;
+
+  /* ==================== Spacing (p-*, m-*, gap-*, space-*) ==================== */
+  --spacing-0: 0px;
+  --spacing-px: 1px;
+  --spacing-0\.5: 2px;
+  --spacing-1: 4px;
+  --spacing-1\.5: 6px;
+  --spacing-2: 8px;
+  --spacing-2\.5: 10px;
+  --spacing-3: 12px;
+  --spacing-3\.5: 14px;
+  --spacing-4: 16px;
+  --spacing-5: 20px;
+  --spacing-6: 24px;
+  --spacing-7: 28px;
+  --spacing-8: 32px;
+  --spacing-9: 36px;
+  --spacing-10: 40px;
+  --spacing-11: 44px;
+  --spacing-12: 48px;
+  --spacing-14: 56px;
+  --spacing-16: 64px;
+  --spacing-20: 80px;
+  --spacing-24: 96px;
+  --spacing-28: 112px;
+  --spacing-32: 128px;
+  --spacing-36: 144px;
+  --spacing-40: 160px;
+  --spacing-44: 176px;
+  --spacing-48: 192px;
+  --spacing-52: 208px;
+  --spacing-56: 224px;
+  --spacing-60: 240px;
+  --spacing-64: 256px;
+  --spacing-72: 288px;
+  --spacing-80: 320px;
+  --spacing-96: 384px;
+
+  /* ==================== Border Radius ==================== */
+  --radius-none: 0px;
+  --radius-sm: 2px;
+  --radius: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+  --radius-3xl: 24px;
+  --radius-full: 9999px;
+
+  /* ==================== Width & Height (w-*, h-*) ==================== */
+  --width-0: 0px;
+  --width-px: 1px;
+  --width-0\.5: 2px;
+  --width-1: 4px;
+  --width-1\.5: 6px;
+  --width-2: 8px;
+  --width-2\.5: 10px;
+  --width-3: 12px;
+  --width-3\.5: 14px;
+  --width-4: 16px;
+  --width-5: 20px;
+  --width-6: 24px;
+  --width-7: 28px;
+  --width-8: 32px;
+  --width-9: 36px;
+  --width-10: 40px;
+  --width-11: 44px;
+  --width-12: 48px;
+  --width-14: 56px;
+  --width-16: 64px;
+  --width-20: 80px;
+  --width-24: 96px;
+  --width-28: 112px;
+  --width-32: 128px;
+  --width-36: 144px;
+  --width-40: 160px;
+  --width-44: 176px;
+  --width-48: 192px;
+  --width-52: 208px;
+  --width-56: 224px;
+  --width-60: 240px;
+  --width-64: 256px;
+  --width-72: 288px;
+  --width-80: 320px;
+  --width-96: 384px;
+
+  /* ==================== Max Width ==================== */
+  --max-width-xs: 320px;
+  --max-width-sm: 384px;
+  --max-width-md: 448px;
+  --max-width-lg: 512px;
+  --max-width-xl: 576px;
+  --max-width-2xl: 672px;
+  --max-width-3xl: 768px;
+  --max-width-4xl: 896px;
+  --max-width-5xl: 1024px;
+  --max-width-6xl: 1152px;
+  --max-width-7xl: 1280px;
+}
 
 :host {
   --bg: rgba(238, 238, 238, 0.72);
@@ -9,7 +149,11 @@
   --accent: #007aff;
   --line: rgba(0, 0, 0, 0.08);
   --shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+  font-size: 16px !important;
+  /* 关键：强制 Shadow DOM 根字体为 16px */
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -88,23 +232,44 @@
 }
 
 .linxtrans-popup__word {
-  @apply text-xl font-bold leading-tight flex-1 break-words tracking-tight;
+  font-size: var(--text-xl);
+  line-height: var(--text-xl--line-height);
+  font-weight: bold;
+  flex: 1;
+  word-break: break-word;
+  letter-spacing: -0.025em;
   color: var(--text);
 }
 
 .linxtrans-popup__phonetic {
-  @apply text-sm mt-1 opacity-80;
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+  margin-top: 4px;
+  opacity: 0.8;
   color: var(--sub);
   font-family: "SF Pro Text", sans-serif;
 }
 
 .linxtrans-popup__def-row {
-  @apply flex gap-2 text-[14px] mb-2 leading-relaxed break-words;
+  display: flex;
+  gap: 8px;
+  font-size: var(--text-sm);
+  line-height: 1.625;
+  margin-bottom: 8px;
+  word-break: break-word;
   color: var(--text);
 }
 
 .linxtrans-popup__footer {
-  @apply h-10 border-t flex justify-between items-center px-2 text-xs rounded-bl-2xl rounded-br-2xl;
+  height: 40px;
+  border-top: 1px solid;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 8px;
+  font-size: var(--text-xs);
+  line-height: var(--text-xs--line-height);
+  border-radius: 0 0 16px 16px;
   background: rgba(0, 0, 0, 0.1);
   border-color: var(--line);
   color: var(--sub);
@@ -127,13 +292,26 @@
 }
 
 .linxtrans-popup__section-label {
-  @apply text-[11px] font-bold mt-4 mb-2 border-t pt-3 uppercase tracking-wider opacity-80;
+  font-size: var(--text-xs);
+  line-height: 1;
+  font-weight: bold;
+  margin-top: 16px;
+  margin-bottom: 8px;
+  border-top: 1px solid;
+  padding-top: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.8;
   color: var(--sub);
   border-color: var(--line);
 }
 
 .linxtrans-popup__original {
-  @apply text-[13px] mb-3 leading-relaxed italic opacity-90;
+  font-size: var(--text-sm);
+  line-height: 1.625;
+  margin-bottom: 12px;
+  font-style: italic;
+  opacity: 0.9;
   color: var(--sub);
 }
 
@@ -191,7 +369,11 @@
 }
 
 .linxtrans-btn--retry {
-  @apply px-3 py-1.5 text-xs rounded-md border;
+  padding: 6px 12px;
+  font-size: var(--text-xs);
+  line-height: var(--text-xs--line-height);
+  border-radius: 6px;
+  border: 1px solid;
   border-color: var(--line);
   color: var(--text);
   background: rgba(0, 0, 0, 0.04);
@@ -209,11 +391,16 @@
 }
 
 .linxtrans-error__title {
-  @apply text-sm font-semibold;
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+  font-weight: 600;
 }
 
 .linxtrans-error__message {
-  @apply text-xs opacity-80 break-words;
+  font-size: var(--text-xs);
+  line-height: var(--text-xs--line-height);
+  opacity: 0.8;
+  word-break: break-word;
   color: var(--sub);
 }
 
@@ -225,7 +412,14 @@
 
 /* Utilities */
 .linxtrans-lang-header {
-  @apply text-[11px] mb-1.5 flex items-center gap-2 font-medium opacity-90;
+  font-size: var(--text-xs);
+  line-height: 1;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  opacity: 0.9;
   color: var(--sub);
 }
 

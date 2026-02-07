@@ -2,7 +2,7 @@ import { LookupUseCase } from '@/domain/usecases/LookupUseCase';
 import { GoogleTranslator } from '@/data/remote/api/GoogleTranslator';
 import { WebSpeechService } from '@/data/local/tts/WebSpeechService';
 import { ChromeTranslationRepository } from '@/data/repository/ChromeTranslationRepository';
-import { mountLookupUI } from '@/presentation/ui/content/mount';
+import { mountLookupUI } from '@/presentation/ui/content/lookup/mount';
 
 /**
  * 插件入口点 (Main / Composition Root) - Content Script
@@ -27,4 +27,19 @@ const speakUseCase = new SpeakTextUseCase(tts);
 // 2. 初始化 UI (Preact)
 // Content Script 需要 mountLookupUI 来创建 Shadow DOM，防止宿主网页的 CSS 污染我们的组件
 mountLookupUI(useCase, speakUseCase);
+
+// // 3. 初始化 YouTube 字幕功能 (仅在 YouTube 页面生效)
+if (window.location.hostname.includes('youtube.com')) {
+    // 动态导入以通过代码分割优化性能 (可选，此处直接引用即可)
+    import('@/presentation/ui/content/youtube/mount').then(({ mountYoutubeSubtitleUI }) => {
+        import('@/domain/usecases/TranslateSubtitleUseCase').then(({ TranslateSubtitleUseCase }) => {
+            const subtitleUseCase = new TranslateSubtitleUseCase(translator); // Reuse translator? Yes. No repo needed?
+            // TODO: Add separate repo if caching is needed, or reuse ChromeTranslationRepository if keys don't collide.
+            // Keys in ChromeTranslationRepository are just strings. It might collide if logic is same.
+            // Let's pass undefined for repo for now (Real-time usually doesn't cache persistently or uses strict keys)
+            // Or create a new repository instance if needed.
+            mountYoutubeSubtitleUI(subtitleUseCase);
+        });
+    });
+}
 

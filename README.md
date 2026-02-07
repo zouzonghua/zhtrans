@@ -11,10 +11,17 @@ LinxTrans 是一款追求极简主义、深度还原 macOS 原生“查找 (Look
 - **顺滑交互体验**：
   - **滚动渐隐销毁**：当页面发生滚动时，弹窗会通过缩放与透明度渐变顺滑消失，避免位置错位。
   - **智能触发**：精准的划词检测，并根据视口空间自动计算最优弹出位置。
+- **YouTube 字幕实时翻译**：
+  - **自动监听**：MutationObserver 监听字幕变化，无需手动触发。
+  - **双层缓存**：内存缓存 + 持久化缓存，极速响应重复字幕。
+  - **防抖优化**：100ms 延迟合并快速变化的字幕，流畅不卡顿。
+- **跨站点样式隔离**：
+  - **Tailwind v4 主题定制**：150+ CSS 变量覆盖，完全不受宿主页面 `font-size` 影响。
+  - **Shadow DOM 封装**：彻底隔离插件样式，在任何网站保持一致的视觉效果。
 - **整洁架构 (Clean Architecture)**：代码层级清晰，业务逻辑与平台 API 完全解耦，具备极强的跨平台扩展性。
 - **轻量级 Preact 驱动**：使用 Preact (仅 3KB) 实现声明式 UI 状态管理，保持极小的资源占用。
 - **标准 CSS + BEM**：严格遵循 BEM 命名规范，确保样式的隔离性与可维护性。
-- **现代技术栈**：TypeScript + Vite + Preact + Shadow DOM。
+- **现代技术栈**：TypeScript + Vite + Preact + Shadow DOM + Tailwind v4。
 
 LinxTrans 遵循 **整洁架构 (Clean Architecture)** + **MVVM** 原则，将关注点分离，确保业务逻辑独立于 UI 和外部框架。
 
@@ -25,25 +32,36 @@ LinxTrans/
 ├── src/
 │   ├── presentation/         # [Presentation Layer] 表现层
 │   │   ├── ui/               # UI 组件
-│   │   ├── chrome/       # Chrome Extension 入口
+│   │   │   ├── chrome/       # Chrome Extension 入口
 │   │   │   │   ├── content.ts    # Content Script 入口
 │   │   │   │   ├── background.ts # Service Worker
 │   │   │   │   └── popup.html    # Popup 页面
-│   │   │   ├── content/      # Content Script 组件 (划词翻译)
-│   │   │   │   ├── components/ #   - 子组件 (Popup, Trigger)
-│   │   │   │   ├── hooks/      #   - 专用 Hooks
-│   │   │   │   └── constants.ts#   - 专用常量
+│   │   │   ├── content/      # Content Script 组件
+│   │   │   │   ├── lookup/   # 划词翻译功能
+│   │   │   │   │   ├── components/ # 子组件 (Popup, Trigger)
+│   │   │   │   │   ├── hooks/      # 专用 Hooks (useLookupModel)
+│   │   │   │   │   ├── LookupApp.tsx
+│   │   │   │   │   ├── mount.tsx   # Shadow DOM 挂载
+│   │   │   │   │   └── lookup.css  # Tailwind v4 + CSS Variables
+│   │   │   │   └── youtube/  # YouTube 字幕翻译功能
+│   │   │   │       ├── components/ # 字幕覆盖层组件
+│   │   │   │       ├── hooks/      # 专用 Hooks
+│   │   │   │       ├── observer/   # MutationObserver 逻辑
+│   │   │   │       └── YoutubeSubtitleApp.tsx
 │   │   │   ├── popup/        # Popup 组件 (历史记录)
-│   │   │   │   └── hooks/      #   - 专用 Hooks
+│   │   │   │   └── hooks/    # 专用 Hooks (useHistoryModel)
 │   │   │   ├── shared/       # [Shared] 跨环境共享 (Icons)
 │   │   │   └── utils/        # UI 工具函数
 │   │   └── viewmodels/       # ViewModels (状态管理)
-│   │       └── LinxTransViewModel.ts
+│   │       ├── LookupViewModel.ts
+│   │       └── YoutubeSubtitleViewModel.ts
 │   │
 │   ├── domain/               # [Domain Layer] 业务逻辑层
 │   │   ├── entities/         # 业务实体 (Translation, DictionaryEntry)
 │   │   ├── repositories/     # 仓库接口定义 (ITranslator, ITextToSpeech, ITranslationRepository)
-│   │   └── usecases/         # 用例 (LookupUseCase: 封装业务逻辑)
+│   │   └── usecases/         # 用例
+│   │       ├── LookupUseCase.ts # 划词查询用例
+│   │       └── TranslateSubtitleUseCase.ts # 字幕翻译用例（双层缓存）
 │   │
 │   └── data/                 # [Data Layer] 数据层
 │       ├── local/            # 本地数据源
@@ -95,10 +113,12 @@ npm run build
 
 ## 📝 开发者笔记
 
-- **Pure Class 架构**：所有的交互逻辑（选区计算、翻译流转、快捷键）都封装在 `LinxTransViewModel` 纯类中，便于单独测试与移植。
-- **UI 绑定 (Binding)**：`useLinxTransModel` hook 充当了 "胶水" 的角色，它通过订阅 (Subject-Observer) 模式监听 VM 的变化并触发组件重渲染。
+- **Pure Class 架构**：所有的交互逻辑（选区计算、翻译流转、快捷键）都封装在 ViewModel 纯类中，便于单独测试与移植。
+- **UI 绑定 (Binding)**：`useLookupModel` / `useYoutubeSubtitleModel` hooks 充当了 "胶水" 的角色，通过订阅 (Subject-Observer) 模式监听 VM 的变化并触发组件重渲染。
 - **样式注入**：利用 Vite 的 `?inline` 模式将 CSS 编译为字符串，在运行时注入 Shadow Root，确保插件在任何网页环境下都能完美还原 macOS 质感而不受外部样式干扰。
+- **Tailwind v4 主题定制**：使用 `@theme` 指令覆盖 150+ CSS 变量，将所有 `rem` 单位替换为 `px`，彻底隔离宿主页面的 `font-size` 设置（如 YouTube 的 `html { font-size: 10px }`）。
 - **BEM 规范**：类名严格遵循 `linxtrans-[block]__[element]--[modifier]`。例如弹窗的关闭状态使用 `linxtrans-popup--closing` 修饰符。
+
 
 ## 📜 开源协议
 MIT License

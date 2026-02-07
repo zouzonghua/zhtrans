@@ -1,5 +1,5 @@
 import { useEffect } from 'preact/hooks';
-import { SELECTION_MAX_LENGTH, OFFSET_TRIGGER_X, OFFSET_TRIGGER_Y } from '@/presentation/ui/content/constants';
+import { SELECTION_MAX_LENGTH, OFFSET_TRIGGER_X, OFFSET_TRIGGER_Y } from '@/presentation/ui/content/lookup/constants';
 
 interface SelectionInfo {
     text: string;

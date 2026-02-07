@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'preact/hooks';
 import { Translation } from '@/domain/entities/Translation';
-import { ANIMATION_DURATION_MS } from '@/presentation/ui/content/constants';
+import { ANIMATION_DURATION_MS } from '@/presentation/ui/content/lookup/constants';
 
 /**
  * 弹窗关闭与全局交互控制 Hook
