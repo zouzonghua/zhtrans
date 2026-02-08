@@ -93,8 +93,22 @@ export class YoutubeSubtitleViewModel {
                 this.hideTimer = null;
             }
 
+            // 优化：处理长文本，避免字幕遮挡屏幕
+            // 如果文本超过 100 字符，只保留最后一部分（尽量按单词切分）
+            let processedText = text;
+            if (processedText.length > 100) {
+                const suffix = processedText.slice(-100);
+                const firstSpace = suffix.indexOf(' ');
+                // 如果前 20 个字符内有空格，就从空格后开始截取，避免切断单词
+                if (firstSpace !== -1 && firstSpace < 20) {
+                    processedText = '...' + suffix.slice(firstSpace + 1);
+                } else {
+                    processedText = '...' + suffix;
+                }
+            }
+
             // 立即更新原文，保证 UI 响应速度
-            this.setState({ originalText: text });
+            this.setState({ originalText: processedText });
 
             // 防抖处理 (Debounce)
             // 避免因字幕频繁微调或快速变化导致发送过多网络请求
@@ -106,8 +120,8 @@ export class YoutubeSubtitleViewModel {
 
             // 100ms 延迟：在人类感知不到的延迟内，合并快速变化的文本事件
             this.debounceTimer = setTimeout(() => {
-                // console.log('[LinxTrans] Performing translation for:', text);
-                this.performTranslation(text);
+                // console.log('[LinxTrans] Performing translation for:', processedText);
+                this.performTranslation(processedText);
             }, 100); // 100ms debounce (Optimized for real-time)
         } else {
             // 2. 如果文本为空 (字幕消失)
