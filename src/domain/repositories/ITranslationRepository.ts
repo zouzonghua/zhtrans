@@ -1,4 +1,4 @@
-import { Translation } from '@/domain/entities/Translation';
+import { Translation, TranslationType } from '@/domain/entities/Translation';
 
 /**
  * 翻译仓库接口 (Repository Port)
@@ -34,4 +34,18 @@ export interface ITranslationRepository {
      * 获取所有缓存的翻译
      */
     getAll(): Promise<Translation[]>;
+
+    /**
+     * 分页获取翻译列表（性能优化）
+     * @param offset 偏移量（从 0 开始）
+     * @param limit 每页数量
+     * @param type 类型过滤（可选）
+     */
+    getPage(offset: number, limit: number, type?: TranslationType): Promise<Translation[]>;
+
+    /**
+     * 获取翻译总数（用于分页计算）
+     * @param type 类型过滤（可选）
+     */
+    getCount(type?: TranslationType): Promise<number>;
 }

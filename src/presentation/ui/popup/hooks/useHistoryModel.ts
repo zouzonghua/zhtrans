@@ -43,6 +43,7 @@ export function useHistoryModel(useCase: HistoryUseCase, speakUseCase: SpeakText
             handleSpeak: viewModel.toggleSpeak,
             handleSearch: viewModel.setSearchQuery,
             handleLoad: viewModel.loadHistory,
+            handleLoadMore: viewModel.loadMore,  // 新增：加载更多
             handleTabChange: viewModel.setSelectedTab
         }
     };

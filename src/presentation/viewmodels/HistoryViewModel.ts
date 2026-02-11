@@ -6,6 +6,9 @@ import { SpeakTextUseCase } from '@/domain/usecases/SpeakTextUseCase';
 export interface HistoryState {
     history: Translation[];
     loading: boolean;
+    loadingMore: boolean;  // 加载更多状态
+    hasMore: boolean;      // 是否还有更多数据
+    totalCount: number;    // 总数
     speakingItem: string | null;
     searchQuery: string;
     filteredHistory: Translation[];
@@ -15,6 +18,9 @@ export interface HistoryState {
 const INITIAL_STATE: HistoryState = {
     history: [],
     loading: true,
+    loadingMore: false,
+    hasMore: true,
+    totalCount: 0,
     speakingItem: null,
     searchQuery: '',
     filteredHistory: [],
@@ -30,6 +36,14 @@ export class HistoryViewModel {
     private listeners: Listener[] = [];
     private useCase: HistoryUseCase;
     private speakUseCase: SpeakTextUseCase;
+
+    // 分页相关
+    private readonly PAGE_SIZE = 50;
+    private currentOffset = 0;
+
+    // 搜索优化
+    private searchDebounceTimer: number | null = null;
+    private searchCache = new Map<string, Translation[]>();  // 搜索缓存
 
     /**
      * @param useCase 历史记录管理用例 (增删查)
@@ -116,14 +130,60 @@ export class HistoryViewModel {
 
     // --- Actions ---
 
+    /**
+     * 加载历史记录（重置分页）
+     */
     public loadHistory = async () => {
-        this.setState({ loading: true });
+        console.log('[ViewModel] 🔄 开始加载历史记录（重置分页）');
+        this.setState({ loading: true, history: [], filteredHistory: [] });
+        this.currentOffset = 0;
+        await this.loadMore();
+        this.setState({ loading: false });
+        console.log('[ViewModel] ✅ 历史记录加载完成');
+    }
+
+    /**
+     * 加载更多数据（增量加载）
+     */
+    public loadMore = async () => {
+        if (this.state.loadingMore || !this.state.hasMore) {
+            console.log(`[ViewModel] ⏭️ 跳过加载更多: loadingMore=${this.state.loadingMore}, hasMore=${this.state.hasMore}`);
+            return;
+        }
+
+        console.log(`[ViewModel] 📥 开始加载更多: offset=${this.currentOffset}, pageSize=${this.PAGE_SIZE}`);
+        this.setState({ loadingMore: true });
+
         try {
-            const items = await this.useCase.getAll();
-            this.setState({ history: items, loading: false });
+            const type = this.state.selectedTab === 'all' ? undefined : this.state.selectedTab;
+
+            // 并行获取数据和总数
+            const [items, totalCount] = await Promise.all([
+                this.useCase.getPage(this.currentOffset, this.PAGE_SIZE, type),
+                this.useCase.getCount(type)
+            ]);
+
+            // 延时500ms
+            if (this.currentOffset !== 0) {
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+
+            console.log(`[ViewModel] 📊 获取到 ${items.length} 条数据，总数: ${totalCount}`);
+
+            const newHistory = [...this.state.history, ...items];
+            this.currentOffset += items.length;
+
+            this.setState({
+                history: newHistory,
+                totalCount,
+                hasMore: this.currentOffset < totalCount,
+                loadingMore: false
+            });
+
+            console.log(`[ViewModel] ✅ 加载更多完成: 当前已加载 ${this.currentOffset}/${totalCount} 条`);
         } catch (e) {
-            console.error(e);
-            this.setState({ loading: false });
+            console.error('[ViewModel] ❌ 加载更多失败:', e);
+            this.setState({ loadingMore: false });
         }
     }
 
@@ -135,6 +195,8 @@ export class HistoryViewModel {
         }
 
         await this.useCase.delete(text);
+
+        // 删除后重新加载（重置分页）
         await this.loadHistory();
     }
 
@@ -160,11 +222,75 @@ export class HistoryViewModel {
         }
     }
 
+    /**
+     * 设置搜索关键词（带防抖优化）
+     */
     public setSearchQuery = (query: string) => {
-        this.setState({ searchQuery: query });
+        // 清除之前的定时器
+        if (this.searchDebounceTimer) {
+            clearTimeout(this.searchDebounceTimer);
+        }
+
+        // 立即更新 UI 显示的搜索词
+        this.state = { ...this.state, searchQuery: query };
+        this.notify();
+
+        // 300ms 后执行搜索
+        this.searchDebounceTimer = setTimeout(() => {
+            this.performSearch(query);
+        }, 300) as any;
     }
 
+    /**
+     * 执行搜索（带缓存）
+     */
+    private performSearch(query: string) {
+        const cacheKey = `${this.state.selectedTab}_${query.toLowerCase()}`;
+
+        // 检查缓存
+        if (this.searchCache.has(cacheKey)) {
+            console.log(`[ViewModel] 🎯 搜索缓存命中: "${query}"`);
+            this.state = {
+                ...this.state,
+                filteredHistory: this.searchCache.get(cacheKey)!
+            };
+            this.notify();
+            return;
+        }
+
+        console.log(`[ViewModel] 🔍 执行搜索: "${query}"`);
+        // 执行搜索
+        this.updateFilteredHistory();
+
+        // 缓存结果（最多缓存 20 个搜索结果）
+        if (this.searchCache.size > 20) {
+            const firstKey = this.searchCache.keys().next().value as string;
+            this.searchCache.delete(firstKey);
+        }
+        this.searchCache.set(cacheKey, this.state.filteredHistory);
+        console.log(`[ViewModel] 💾 搜索结果已缓存，找到 ${this.state.filteredHistory.length} 条`);
+    }
+
+    /**
+     * 切换 Tab（重置分页和缓存）
+     */
     public setSelectedTab = (tab: 'all' | TranslationType) => {
-        this.setState({ selectedTab: tab });
+        console.log(`[ViewModel] 🔀 切换 Tab: ${this.state.selectedTab} → ${tab}`);
+
+        // 切换 Tab 时清空搜索缓存
+        this.searchCache.clear();
+        console.log('[ViewModel] 🗑️ 已清空搜索缓存');
+
+        // 重置分页
+        this.currentOffset = 0;
+        this.setState({
+            selectedTab: tab,
+            history: [],
+            filteredHistory: [],
+            hasMore: true
+        });
+
+        // 重新加载数据
+        this.loadHistory();
     }
 }

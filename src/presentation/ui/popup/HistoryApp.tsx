@@ -1,7 +1,8 @@
-import { SpeakIcon } from '@/presentation/ui/shared/icons';
+import { SpeakIcon, ArrowUpIcon } from '@/presentation/ui/shared/icons';
 import { useHistoryModel } from '@/presentation/ui/popup/hooks/useHistoryModel';
 import { HistoryUseCase } from '@/domain/usecases/HistoryUseCase';
 import styles from './history.css?inline';
+import { useRef, useEffect, useState } from 'preact/hooks';
 
 declare const __APP_VERSION__: string;
 
@@ -24,8 +25,65 @@ interface Props {
 export const HistoryApp = ({ useCase, speakUseCase }: Props) => {
     // 1. 获取 Model (State & Actions)
     const { state, actions } = useHistoryModel(useCase, speakUseCase);
-    const { loading, filteredHistory, speakingItem, searchQuery, selectedTab } = state;
-    const { handleDelete, handleSpeak, handleSearch, handleTabChange } = actions;
+    const { loading, loadingMore, hasMore, totalCount, filteredHistory, speakingItem, searchQuery, selectedTab } = state;
+    const { handleDelete, handleSpeak, handleSearch, handleTabChange, handleLoadMore } = actions;
+
+    console.log(`[UI] 🚀 Rendering v1.0.3 | loading: ${loading}, count: ${filteredHistory.length}, hasMore: ${hasMore}`);
+
+    // 2. 滚动加载监听
+    const contentRef = useRef<HTMLDivElement>(null);
+    const isLoadingRef = useRef(false); // 防止重复触发
+    const [showScrollTop, setShowScrollTop] = useState(false); // 回到顶部按钮状态
+
+    useEffect(() => {
+        const content = contentRef.current;
+        if (!content) return;
+
+        console.log('[UI] 📏 Size Check (Effect):', {
+            clientHeight: content.clientHeight,
+            scrollHeight: content.scrollHeight,
+            itemsCount: filteredHistory.length,
+            hasMore,
+            loadingMore
+        });
+
+        const checkScroll = () => {
+            const { scrollTop, scrollHeight, clientHeight } = content;
+            const distance = scrollHeight - (scrollTop + clientHeight);
+
+            if (scrollTop > 0) {
+                console.log(`[UI] 📜 Scrolling: scrollTop=${scrollTop}, distance=${distance}`);
+            }
+
+            // 更新回到顶部按钮可见性 (超过 300px 显示)
+            if (scrollTop > 300) {
+                setShowScrollTop(true);
+            } else {
+                setShowScrollTop(false);
+            }
+
+            // 关键逻辑：如果距离底部小于 100px (包括没有滚动条的情况 distance=0)，且还有更多数据，则加载
+            if (hasMore && !loadingMore && !loading && distance < 100 && !isLoadingRef.current) {
+                console.log('[UI] 🎯 触发加载: 列表未填满或接近底部');
+                isLoadingRef.current = true;
+                handleLoadMore().finally(() => {
+                    // 给 DOM 留出渲染时间后再重置锁
+                    setTimeout(() => { isLoadingRef.current = false; }, 500);
+                });
+            }
+        };
+
+        // 绑定滚动事件
+        content.addEventListener('scroll', checkScroll, { passive: true });
+
+        // 渲染后立即检查一次（处理内容不足以产生滚动条的情况）
+        const timer = setTimeout(checkScroll, 100);
+
+        return () => {
+            content.removeEventListener('scroll', checkScroll);
+            clearTimeout(timer);
+        };
+    }, [handleLoadMore, filteredHistory.length, hasMore, loadingMore, loading]);
 
     return (
         <div className="linxtrans-history">
@@ -83,7 +141,8 @@ export const HistoryApp = ({ useCase, speakUseCase }: Props) => {
                 </div>
             </header>
 
-            <div className="linxtrans-history__content">
+
+            <div className="linxtrans-history__content" ref={contentRef}>
                 {loading ? (
                     <div className="linxtrans-history__empty">Loading...</div>
                 ) : filteredHistory.length === 0 ? (
@@ -91,44 +150,70 @@ export const HistoryApp = ({ useCase, speakUseCase }: Props) => {
                         {searchQuery ? 'No matching history found.' : 'No history yet.'}
                     </div>
                 ) : (
-                    <ul className="linxtrans-history__list">
-                        {filteredHistory.map((item) => (
-                            <li key={item.original} className="linxtrans-history__item group">
-                                <div className="linxtrans-history__row">
-                                    <div className="linxtrans-history__original">{item.original}</div>
+                    <>
+                        <ul className="linxtrans-history__list">
+                            {filteredHistory.map((item) => (
+                                <li key={item.original} className="linxtrans-history__item group">
+                                    <div className="linxtrans-history__row">
+                                        <div className="linxtrans-history__original">{item.original}</div>
 
-                                    {/* Actions: Speak & Delete (Hover to show) */}
-                                    <div className="linxtrans-history__actions">
-                                        <button
-                                            className={`linxtrans-icon-btn ${speakingItem === item.original ? 'linxtrans-btn--speaking' : ''}`}
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleSpeak(item.original);
-                                            }}
-                                            title="Speak"
-                                        >
-                                            <SpeakIcon />
-                                        </button>
-                                        <button
-                                            className="linxtrans-icon-btn linxtrans-icon-btn--delete"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleDelete(item.original);
-                                            }}
-                                            title="Delete"
-                                        >
-                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
-                                                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
-                                            </svg>
-                                        </button>
+                                        {/* Actions: Speak & Delete (Hover to show) */}
+                                        <div className="linxtrans-history__actions">
+                                            <button
+                                                className={`linxtrans-icon-btn ${speakingItem === item.original ? 'linxtrans-btn--speaking' : ''}`}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleSpeak(item.original);
+                                                }}
+                                                title="Speak"
+                                            >
+                                                <SpeakIcon />
+                                            </button>
+                                            <button
+                                                className="linxtrans-icon-btn linxtrans-icon-btn--delete"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleDelete(item.original);
+                                                }}
+                                                title="Delete"
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                                                    <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+                                                </svg>
+                                            </button>
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="linxtrans-history__translated">{item.translated}</div>
-                            </li>
-                        ))}
-                    </ul>
+                                    <div className="linxtrans-history__translated">{item.translated}</div>
+                                </li>
+                            ))}
+                        </ul>
+
+                        {/* 加载更多指示器 */}
+                        {loadingMore && (
+                            <div className="linxtrans-loading-more">Loading more...</div>
+                        )}
+
+                        {/* 已加载全部提示 */}
+                        {!hasMore && filteredHistory.length > 0 && (
+                            <div className="linxtrans-all-loaded">
+                                All {totalCount} items loaded
+                            </div>
+                        )}
+                    </>
                 )}
+
             </div>
+            {/* 回到顶部按钮 - 移到外层容器以固定位置 */}
+            <button
+                className={`linxtrans-scroll-top ${showScrollTop ? 'linxtrans-scroll-top--visible' : ''}`}
+                onClick={() => {
+                    contentRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                title="Scroll to top"
+            >
+                <ArrowUpIcon />
+            </button>
+
             <style>{styles}</style>
         </div>
     );
