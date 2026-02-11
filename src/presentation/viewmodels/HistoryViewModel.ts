@@ -135,7 +135,16 @@ export class HistoryViewModel {
      */
     public loadHistory = async () => {
         console.log('[ViewModel] 🔄 开始加载历史记录（重置分页）');
-        this.setState({ loading: true, history: [], filteredHistory: [] });
+
+        // 每次重新加载全量数据时，搜索缓存都失效了
+        this.searchCache.clear();
+
+        this.setState({
+            loading: true,
+            history: [],
+            filteredHistory: [],
+            hasMore: true // Reset hasMore to allow loadMore to fetch
+        });
         this.currentOffset = 0;
         await this.loadMore();
         this.setState({ loading: false });
