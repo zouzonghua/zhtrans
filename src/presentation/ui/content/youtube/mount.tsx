@@ -7,6 +7,17 @@ import { NativeSubtitleController } from '@/presentation/ui/content/youtube/Nati
 
 // 全局控制器实例，用于管理原生字幕的显示/隐藏
 const nativeSubtitleController = new NativeSubtitleController();
+let mountGeneration = 0;
+let waitForPlayerTimer: number | null = null;
+let navigationListenerRegistered = false;
+let activeUseCase: TranslateSubtitleUseCase | null = null;
+
+const handleYoutubeNavigation = () => {
+    if (!activeUseCase) return;
+    console.log('[LinxTrans] YouTube navigation detected, remounting UI...');
+    cleanup();
+    tryMount(activeUseCase);
+};
 
 /**
  * 挂载 YouTube 字幕 UI
@@ -17,23 +28,33 @@ const nativeSubtitleController = new NativeSubtitleController();
  * 3. 自动隐藏 YouTube 原生字幕，避免与翻译字幕重叠。
  */
 export function mountYoutubeSubtitleUI(useCase: TranslateSubtitleUseCase) {
+    activeUseCase = useCase;
+
+    cleanup();
+
     // 启动即尝试挂载
     tryMount(useCase);
 
-    // 监听 YouTube 的 SPA 导航事件 (切换视频时触发)
-    // 'yt-navigate-finish' 是 YouTube 自定义事件
-    document.addEventListener('yt-navigate-finish', () => {
-        console.log('[LinxTrans] YouTube navigation detected, remounting UI...');
-        // 关键逻辑：先卸载清理旧的实例，防止 Observer 监听错误的对象或内存泄漏
-        cleanup();
-        tryMount(useCase);
-    });
+    if (!navigationListenerRegistered) {
+        // 监听 YouTube 的 SPA 导航事件 (切换视频时触发)
+        // 'yt-navigate-finish' 是 YouTube 自定义事件
+        document.addEventListener('yt-navigate-finish', handleYoutubeNavigation);
+        window.addEventListener('beforeunload', cleanup);
+        navigationListenerRegistered = true;
+    }
 }
 
 /**
  * 清理函数：卸载组件并移除宿主节点
  */
 function cleanup() {
+    mountGeneration += 1;
+
+    if (waitForPlayerTimer !== null) {
+        window.clearInterval(waitForPlayerTimer);
+        waitForPlayerTimer = null;
+    }
+
     const host = document.querySelector('#linxtrans-youtube-subtitle-host');
     if (host) {
         // 1. 渲染 null 触发 Preact 组件的 unmount 生命周期 (调用 useEffect return, dispose ViewModel)
@@ -42,21 +63,46 @@ function cleanup() {
         host.remove();
         console.log('[LinxTrans] Old UI cleaned up.');
     }
+
+    nativeSubtitleController.show();
 }
 
 /**
  * 尝试注入 UI，如果找不到播放器则轮询等待。
  */
 function tryMount(useCase: TranslateSubtitleUseCase) {
-    // 防止重复轮询
-    // 实际生产中可能需要更严谨的锁，但这里 setInterval 句柄丢弃问题不大，因为 inject 内部有防重判断
-    const waitForPlayer = setInterval(() => {
+    if (waitForPlayerTimer !== null) {
+        window.clearInterval(waitForPlayerTimer);
+    }
+
+    const currentGeneration = mountGeneration;
+    let attempts = 0;
+
+    // 防止重复轮询，同时避免无限轮询残留
+    waitForPlayerTimer = window.setInterval(() => {
+        if (currentGeneration !== mountGeneration) {
+            if (waitForPlayerTimer !== null) {
+                window.clearInterval(waitForPlayerTimer);
+                waitForPlayerTimer = null;
+            }
+            return;
+        }
+
         const player = document.querySelector('.html5-video-player');
         if (player) {
-            clearInterval(waitForPlayer);
+            if (waitForPlayerTimer !== null) {
+                window.clearInterval(waitForPlayerTimer);
+                waitForPlayerTimer = null;
+            }
             inject(player, useCase);
-        } else {
-            // console.log('[LinxTrans] Player not found, waiting...');
+            return;
+        }
+
+        attempts += 1;
+        if (attempts >= 30 && waitForPlayerTimer !== null) {
+            window.clearInterval(waitForPlayerTimer);
+            waitForPlayerTimer = null;
+            nativeSubtitleController.show();
         }
     }, 1000);
 }
@@ -95,4 +141,3 @@ function inject(player: Element, useCase: TranslateSubtitleUseCase) {
 
     // console.log('[LinxTrans] UI injected successfully.');
 }
-

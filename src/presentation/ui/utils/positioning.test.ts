@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { calculatePopupPosition } from './positioning';
-import { HEIGHT_DICT, OFFSET_POPUP_BOTTOM_MARGIN, OFFSET_POPUP_TOP_MARGIN } from '@/presentation/ui/content/constants';
+import { HEIGHT_DICT, OFFSET_POPUP_BOTTOM_MARGIN, OFFSET_POPUP_TOP_MARGIN } from '@/presentation/ui/content/lookup/constants';
 
 describe('calculatePopupPosition', () => {
     const windowWidth = 1000;

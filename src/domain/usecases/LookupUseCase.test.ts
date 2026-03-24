@@ -25,7 +25,8 @@ describe('LookupUseCase', () => {
         original: 'hello',
         translated: '你好',
         srcLang: 'en',
-        targetLang: 'zh-CN'
+        targetLang: 'zh-CN',
+        type: 'lookup'
     };
 
     beforeEach(() => {
@@ -38,7 +39,9 @@ describe('LookupUseCase', () => {
             save: vi.fn().mockResolvedValue(undefined),
             delete: vi.fn(),
             clear: vi.fn(),
-            getAll: vi.fn()
+            getAll: vi.fn(),
+            getPage: vi.fn(),
+            getCount: vi.fn()
         };
         // 实例化被测对象
         useCase = new LookupUseCase(mockTranslator, mockRepository);
@@ -73,4 +76,3 @@ describe('LookupUseCase', () => {
         await expect(useCase.execute('   ')).rejects.toThrow('Text is empty');
     });
 });
-

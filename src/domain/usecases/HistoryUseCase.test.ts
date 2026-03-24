@@ -22,8 +22,8 @@ describe('HistoryUseCase - 单元测试', () => {
 
     // 模拟翻译数据
     const sampleHistory: Translation[] = [
-        { original: 'apple', translated: '苹果', srcLang: 'en', targetLang: 'zh-CN' },
-        { original: 'banana', translated: '香蕉', srcLang: 'en', targetLang: 'zh-CN' }
+        { original: 'apple', translated: '苹果', srcLang: 'en', targetLang: 'zh-CN', type: 'lookup' },
+        { original: 'banana', translated: '香蕉', srcLang: 'en', targetLang: 'zh-CN', type: 'subtitle' }
     ];
 
     beforeEach(() => {
@@ -33,7 +33,9 @@ describe('HistoryUseCase - 单元测试', () => {
             delete: vi.fn().mockResolvedValue(undefined),
             get: vi.fn(),
             save: vi.fn(),
-            clear: vi.fn()
+            clear: vi.fn(),
+            getPage: vi.fn(),
+            getCount: vi.fn()
         };
 
         // 实例化被测用例
@@ -89,7 +91,7 @@ describe('HistoryUseCase - 单元测试', () => {
         const remainingHistory = await useCase.getAll();
         expect(remainingHistory).toHaveLength(1);
         expect(remainingHistory).toEqual([
-            { original: 'banana', translated: '香蕉', srcLang: 'en', targetLang: 'zh-CN' }
+            { original: 'banana', translated: '香蕉', srcLang: 'en', targetLang: 'zh-CN', type: 'subtitle' }
         ]);
         // 验证：被删除的记录不应该存在
         expect(remainingHistory.find(item => item.original === textToDelete)).toBeUndefined();
