@@ -38,7 +38,7 @@ body {
 }
 
 /* 核心布局容器 */
-.linxtrans-history {
+.zhtrans-history {
     display: flex;
     flex-direction: column;
     height: 100vh;
@@ -52,7 +52,7 @@ body {
 }
 
 /* ========== Header ========== */
-.linxtrans-history__header {
+.zhtrans-history__header {
     flex-shrink: 0;
     padding: 12px 16px 12px 16px;
     display: flex;
@@ -62,31 +62,31 @@ body {
     border-bottom: 1px solid var(--border-light);
 }
 
-.linxtrans-history__top-bar {
+.zhtrans-history__top-bar {
     @apply flex items-center justify-between;
 }
 
-.linxtrans-history__header h2 {
+.zhtrans-history__header h2 {
     @apply m-0 text-lg font-bold tracking-tight;
     color: var(--text-primary);
     letter-spacing: -0.02em;
 }
 
 /* ========== Tabs ========== */
-.linxtrans-history__tabs {
+.zhtrans-history__tabs {
     @apply flex gap-1.5 p-1 rounded-lg;
     background: rgba(0, 0, 0, 0.04);
     position: relative;
 }
 
 @media (prefers-color-scheme: dark) {
-    .linxtrans-history__tabs {
+    .zhtrans-history__tabs {
         background: rgba(255, 255, 255, 0.06);
     }
 }
 
 /* Sliding indicator background */
-.linxtrans-tab-indicator {
+.zhtrans-tab-indicator {
     position: absolute;
     top: 4px;
     left: 4px;
@@ -101,7 +101,7 @@ body {
     z-index: 0;
 }
 
-.linxtrans-tab-btn {
+.zhtrans-tab-btn {
     @apply flex-1 py-1.5 px-3 text-xs font-semibold border-none rounded-md cursor-pointer text-center;
     background: transparent;
     color: var(--text-secondary);
@@ -110,52 +110,52 @@ body {
     z-index: 1;
 }
 
-.linxtrans-tab-btn:hover {
+.zhtrans-tab-btn:hover {
     color: var(--text-primary);
 }
 
-.linxtrans-tab-btn--active {
+.zhtrans-tab-btn--active {
     color: var(--text-primary);
 }
 
 /* ========== Search ========== */
-.linxtrans-history__search {
+.zhtrans-history__search {
     @apply w-full;
 }
 
-.linxtrans-search-wrapper {
+.zhtrans-search-wrapper {
     @apply relative w-full flex items-center;
 }
 
-.linxtrans-search-icon {
+.zhtrans-search-icon {
     @apply absolute left-2.5 w-4 h-4;
     color: var(--text-tertiary);
     pointer-events: none;
 }
 
-.linxtrans-history__search input {
+.zhtrans-history__search input {
     @apply w-full h-8 border-none rounded-lg pl-9 pr-3 text-sm outline-none transition-all duration-150;
     background: rgba(0, 0, 0, 0.04);
     color: var(--text-primary);
 }
 
 @media (prefers-color-scheme: dark) {
-    .linxtrans-history__search input {
+    .zhtrans-history__search input {
         background: rgba(255, 255, 255, 0.06);
     }
 }
 
-.linxtrans-history__search input::placeholder {
+.zhtrans-history__search input::placeholder {
     color: var(--text-tertiary);
 }
 
-.linxtrans-history__search input:focus {
+.zhtrans-history__search input:focus {
     background: var(--bg-card);
     box-shadow: 0 0 0 2px var(--accent);
 }
 
 /* ========== Content ========== */
-.linxtrans-history__content {
+.zhtrans-history__content {
     flex: 1;
     padding: 12px 16px;
     overflow: auto;
@@ -166,26 +166,26 @@ body {
     height: 50px;
 }
 
-.linxtrans-history__content::-webkit-scrollbar {
+.zhtrans-history__content::-webkit-scrollbar {
     width: 6px;
 }
 
-.linxtrans-history__content::-webkit-scrollbar-track {
+.zhtrans-history__content::-webkit-scrollbar-track {
     background: transparent;
 }
 
-.linxtrans-history__content::-webkit-scrollbar-thumb {
+.zhtrans-history__content::-webkit-scrollbar-thumb {
     background: rgba(0, 0, 0, 0.15);
     border-radius: 3px;
 }
 
 @media (prefers-color-scheme: dark) {
-    .linxtrans-history__content::-webkit-scrollbar-thumb {
+    .zhtrans-history__content::-webkit-scrollbar-thumb {
         background: rgba(255, 255, 255, 0.2);
     }
 }
 
-.linxtrans-history__empty {
+.zhtrans-history__empty {
     margin-top: 96px;
     text-align: center;
     font-size: 14px;
@@ -196,7 +196,7 @@ body {
     color: var(--text-tertiary);
 }
 
-.linxtrans-history__list {
+.zhtrans-history__list {
     list-style: none;
     margin: 0;
     padding: 0;
@@ -206,7 +206,7 @@ body {
 }
 
 /* ========== Card ========== */
-.linxtrans-history__item {
+.zhtrans-history__item {
     position: relative;
     display: flex;
     flex-direction: column;
@@ -218,12 +218,12 @@ body {
     box-shadow: var(--shadow-sm);
 }
 
-.linxtrans-history__item:hover {
+.zhtrans-history__item:hover {
     transform: translateY(-1px);
     box-shadow: var(--shadow-md);
 }
 
-.linxtrans-history__row {
+.zhtrans-history__row {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
@@ -231,7 +231,7 @@ body {
     margin-bottom: 8px;
 }
 
-.linxtrans-history__original {
+.zhtrans-history__original {
     font-size: 15px;
     font-weight: 600;
     line-height: 1.4;
@@ -240,7 +240,7 @@ body {
     word-break: break-word;
 }
 
-.linxtrans-history__translated {
+.zhtrans-history__translated {
     font-size: 14px;
     line-height: 1.6;
     color: var(--text-secondary);
@@ -248,56 +248,56 @@ body {
 }
 
 /* ========== Actions ========== */
-.linxtrans-history__actions {
+.zhtrans-history__actions {
     @apply flex items-center gap-1 opacity-0 transition-opacity duration-200;
     flex-shrink: 0;
 }
 
 @media (hover: hover) {
-    .linxtrans-history__item:hover .linxtrans-history__actions {
+    .zhtrans-history__item:hover .zhtrans-history__actions {
         @apply opacity-100;
     }
 }
 
 @media (hover: none) {
-    .linxtrans-history__actions {
+    .zhtrans-history__actions {
         @apply opacity-100;
     }
 }
 
-.linxtrans-icon-btn {
+.zhtrans-icon-btn {
     @apply w-7 h-7 flex items-center justify-center rounded-full border-none cursor-pointer transition-all duration-150;
     background: transparent;
     color: var(--text-tertiary);
 }
 
-.linxtrans-icon-btn:hover {
+.zhtrans-icon-btn:hover {
     background: rgba(0, 0, 0, 0.06);
     color: var(--accent);
 }
 
 @media (prefers-color-scheme: dark) {
-    .linxtrans-icon-btn:hover {
+    .zhtrans-icon-btn:hover {
         background: rgba(255, 255, 255, 0.1);
     }
 }
 
-.linxtrans-icon-btn--delete:hover {
+.zhtrans-icon-btn--delete:hover {
     color: #ff3b30;
     background: rgba(255, 59, 48, 0.1);
 }
 
-.linxtrans-btn--speaking {
+.zhtrans-btn--speaking {
     color: var(--accent);
     @apply animate-pulse;
 }
 
-.linxtrans-icon-btn svg {
+.zhtrans-icon-btn svg {
     @apply w-4 h-4;
 }
 
 /* ========== Footer ========== */
-.linxtrans-history__footer {
+.zhtrans-history__footer {
     @apply flex-shrink-0 py-2 text-center text-[10px];
     color: var(--text-tertiary);
     background: var(--bg-app);
@@ -305,7 +305,7 @@ body {
 }
 
 /* ========== Loading Indicators ========== */
-.linxtrans-loading-more {
+.zhtrans-loading-more {
     text-align: center;
     padding: 16px 0;
     font-size: 13px;
@@ -316,7 +316,7 @@ body {
     gap: 8px;
 }
 
-.linxtrans-loading-more::before {
+.zhtrans-loading-more::before {
     content: "";
     width: 16px;
     height: 16px;
@@ -332,7 +332,7 @@ body {
     }
 }
 
-.linxtrans-all-loaded {
+.zhtrans-all-loaded {
     @apply text-center py-4 text-xs;
     color: var(--text-tertiary);
     opacity: 0.7;
@@ -341,7 +341,7 @@ body {
 
 
 /* ========== Scroll Top Button ========== */
-.linxtrans-scroll-top {
+.zhtrans-scroll-top {
     position: absolute;
     bottom: 24px;
     right: 24px;
@@ -363,32 +363,32 @@ body {
     z-index: 20;
 }
 
-.linxtrans-scroll-top svg {
+.zhtrans-scroll-top svg {
     width: 20px;
     height: 20px;
 }
 
-.linxtrans-scroll-top:hover {
+.zhtrans-scroll-top:hover {
     background: var(--accent);
     color: white;
     box-shadow: 0 6px 16px rgba(0, 122, 255, 0.3);
     transform: translateY(-2px);
 }
 
-.linxtrans-scroll-top--visible {
+.zhtrans-scroll-top--visible {
     opacity: 1;
     transform: translateY(0) scale(1);
     pointer-events: auto;
 }
 
 @media (prefers-color-scheme: dark) {
-    .linxtrans-scroll-top {
+    .zhtrans-scroll-top {
         background: #2c2c2e;
         border-color: rgba(255, 255, 255, 0.1);
         color: var(--accent);
     }
 
-    .linxtrans-scroll-top:hover {
+    .zhtrans-scroll-top:hover {
         background: var(--accent);
         color: white;
     }

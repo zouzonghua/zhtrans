@@ -57,15 +57,15 @@ export function useDismissal(
         };
 
         window.addEventListener('scroll', handleScroll, { capture: true, passive: true });
-        window.addEventListener('linxtrans:hide', handleHideEvent);
+        window.addEventListener('zhtrans:hide', handleHideEvent);
 
-        // 暴露给全局 (window.linxtransHideAll)
-        (window as any).linxtransHideAll = fadeOutAndHide;
+        // 暴露给全局 (window.zhtransHideAll)
+        (window as any).zhtransHideAll = fadeOutAndHide;
 
         return () => {
             window.removeEventListener('scroll', handleScroll, { capture: true });
-            window.removeEventListener('linxtrans:hide', handleHideEvent);
-            delete (window as any).linxtransHideAll;
+            window.removeEventListener('zhtrans:hide', handleHideEvent);
+            delete (window as any).zhtransHideAll;
         };
     }, [fadeOutAndHide, onReset]);
 

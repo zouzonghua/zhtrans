@@ -17,8 +17,8 @@ describe('useDismissal Hook', () => {
     afterEach(() => {
         document.body.removeChild(container);
         vi.useRealTimers();
-        if ((window as any).linxtransHideAll) {
-            delete (window as any).linxtransHideAll;
+        if ((window as any).zhtransHideAll) {
+            delete (window as any).zhtransHideAll;
         }
     });
 
@@ -36,7 +36,7 @@ describe('useDismissal Hook', () => {
         return <div>{isClosing ? 'Closing' : 'Open'}</div>;
     }
 
-    it('should call onReset after delay when linxtransHideAll is called', async () => {
+    it('should call onReset after delay when zhtransHideAll is called', async () => {
         const onReset = vi.fn();
 
         await act(async () => {
@@ -46,17 +46,17 @@ describe('useDismissal Hook', () => {
         });
 
         // 1. Call hide
-        if ((window as any).linxtransHideAll) {
+        if ((window as any).zhtransHideAll) {
             // Now switch to fake timers to control the animation delay
             vi.useFakeTimers();
 
             await act(async () => {
-                (window as any).linxtransHideAll();
+                (window as any).zhtransHideAll();
                 // Trigger any immediate state updates
             });
 
         } else {
-            throw new Error('linxtransHideAll not defined on window - effects did not run');
+            throw new Error('zhtransHideAll not defined on window - effects did not run');
         }
 
         // 2. Advance time for animation duration (200ms)
@@ -79,9 +79,9 @@ describe('useDismissal Hook', () => {
         vi.useFakeTimers();
 
         // 1. Call hide (simulation: mousedown)
-        if ((window as any).linxtransHideAll) {
+        if ((window as any).zhtransHideAll) {
             await act(async () => {
-                (window as any).linxtransHideAll();
+                (window as any).zhtransHideAll();
             });
         }
 

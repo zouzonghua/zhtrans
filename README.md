@@ -1,6 +1,6 @@
-# LinxTrans
+# zhTrans
 
-LinxTrans 是一个基于 Chrome Extension Manifest V3 的翻译插件，当前主要提供两类能力：
+zhTrans 是一个基于 Chrome Extension Manifest V3 的翻译插件，当前主要提供两类能力：
 
 - 网页划词翻译
 - YouTube 字幕实时翻译

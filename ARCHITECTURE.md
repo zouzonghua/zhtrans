@@ -216,9 +216,9 @@ export class ChromeTranslationRepository implements ITranslationRepository {
 
 **MVVM 模式**：
 ```typescript
-// presentation/viewmodels/LinxTransViewModel.ts
-export class LinxTransViewModel {
-  private state: LinxTransState = {
+// presentation/viewmodels/zhTransViewModel.ts
+export class zhTransViewModel {
+  private state: zhTransState = {
     triggerPos: null,
     isLoading: false,
     result: null,
@@ -246,10 +246,10 @@ export class LinxTransViewModel {
   }
 }
 
-// presentation/ui/hooks/useLinxTransModel.ts
-export function useLinxTransModel(useCase: LookupUseCase) {
+// presentation/ui/hooks/usezhTransModel.ts
+export function usezhTransModel(useCase: LookupUseCase) {
   const viewModel = useMemo(
-    () => new LinxTransViewModel(useCase), 
+    () => new zhTransViewModel(useCase), 
     [useCase]
   );
   
@@ -360,14 +360,14 @@ describe('GoogleTranslator', () => {
 
 ### 3. Presentation 层（组件测试）
 ```typescript
-// presentation/ui/content/LinxTransApp.test.tsx
-describe('LinxTransApp', () => {
+// presentation/ui/content/zhTransApp.test.tsx
+describe('zhTransApp', () => {
   it('should display translation result', async () => {
     const mockUseCase = { 
       execute: vi.fn().mockResolvedValue(mockTranslation) 
     };
     
-    render(<LinxTransApp onTranslate={mockUseCase.execute} />);
+    render(<zhTransApp onTranslate={mockUseCase.execute} />);
     
     // 触发翻译
     fireEvent.click(screen.getByRole('button'));
@@ -388,7 +388,7 @@ describe('LinxTransApp', () => {
 | Repository 接口 | `UserRepository` | `ITranslationRepository` |
 | Repository 实现 | `UserRepositoryImpl` | `ChromeTranslationRepository` |
 | UseCase | `GetUserUseCase` | `LookupUseCase` |
-| ViewModel | `MainViewModel` | `LinxTransViewModel` |
+| ViewModel | `MainViewModel` | `zhTransViewModel` |
 | Data Source | `RemoteDataSource` | `GoogleTranslator` |
 | 服务接口 | `IUserService` | `ITranslator`, `ITextToSpeech` |
 

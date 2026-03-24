@@ -6,10 +6,10 @@ import { useSelectionTrigger } from './useSelectionTrigger';
 import { useShortcuts } from './useShortcuts';
 
 /**
- * LinxTrans ViewModel Binder (Preact 适配器)
+ * zhTrans ViewModel Binder (Preact 适配器)
  * 
  * 职责：
- * 1. 实例化纯 TypeScript 的 ViewModel (LinxTransViewModel)
+ * 1. 实例化纯 TypeScript 的 ViewModel (zhTransViewModel)
  * 2. 将 ViewModel 的状态桥接到 Preact 的响应式系统 (State Binding)
  * 3. 负责"平台适配"：使用 Hooks 监听 DOM 事件并转发给 ViewModel
  */

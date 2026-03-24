@@ -14,7 +14,7 @@ let activeUseCase: TranslateSubtitleUseCase | null = null;
 
 const handleYoutubeNavigation = () => {
     if (!activeUseCase) return;
-    console.log('[LinxTrans] YouTube navigation detected, remounting UI...');
+    console.log('[zhTrans] YouTube navigation detected, remounting UI...');
     cleanup();
     tryMount(activeUseCase);
 };
@@ -55,13 +55,13 @@ function cleanup() {
         waitForPlayerTimer = null;
     }
 
-    const host = document.querySelector('#linxtrans-youtube-subtitle-host');
+    const host = document.querySelector('#zhtrans-youtube-subtitle-host');
     if (host) {
         // 1. 渲染 null 触发 Preact 组件的 unmount 生命周期 (调用 useEffect return, dispose ViewModel)
         render(null as any, host);
         // 2. 移除 DOM 节点
         host.remove();
-        console.log('[LinxTrans] Old UI cleaned up.');
+        console.log('[zhTrans] Old UI cleaned up.');
     }
 
     nativeSubtitleController.show();
@@ -112,14 +112,14 @@ function tryMount(useCase: TranslateSubtitleUseCase) {
  */
 function inject(player: Element, useCase: TranslateSubtitleUseCase) {
     // 1. 防重复检查：如果已经存在我们的宿主节点，就直接返回
-    if (player.querySelector('#linxtrans-youtube-subtitle-host')) {
-        // console.log('[LinxTrans] UI already injected.');
+    if (player.querySelector('#zhtrans-youtube-subtitle-host')) {
+        // console.log('[zhTrans] UI already injected.');
         return;
     }
 
     // 2. 创建宿主容器
     const host = document.createElement('div');
-    host.id = 'linxtrans-youtube-subtitle-host';
+    host.id = 'zhtrans-youtube-subtitle-host';
 
     // 3. 设置样式：绝对定位覆盖在视频上方
     host.style.position = 'absolute';
@@ -139,5 +139,5 @@ function inject(player: Element, useCase: TranslateSubtitleUseCase) {
     // 6. 隐藏 YouTube 原生字幕，避免与翻译字幕重叠
     nativeSubtitleController.hide();
 
-    // console.log('[LinxTrans] UI injected successfully.');
+    // console.log('[zhTrans] UI injected successfully.');
 }

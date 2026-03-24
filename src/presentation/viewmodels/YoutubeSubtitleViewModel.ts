@@ -120,7 +120,7 @@ export class YoutubeSubtitleViewModel {
 
             // 100ms 延迟：在人类感知不到的延迟内，合并快速变化的文本事件
             this.debounceTimer = setTimeout(() => {
-                // console.log('[LinxTrans] Performing translation for:', processedText);
+                // console.log('[zhTrans] Performing translation for:', processedText);
                 this.performTranslation(processedText);
             }, 100); // 100ms debounce (Optimized for real-time)
         } else {
@@ -146,7 +146,7 @@ export class YoutubeSubtitleViewModel {
     private async performTranslation(text: string) {
         try {
             const result = await this.useCase.execute(text);
-            console.log('[LinxTrans] Translation result:', result.translation.translated, 'fromCache:', result.fromCache);
+            console.log('[zhTrans] Translation result:', result.translation.translated, 'fromCache:', result.fromCache);
 
             // 更新译文和缓存命中状态
             this.setState({
@@ -156,7 +156,7 @@ export class YoutubeSubtitleViewModel {
                 cacheHit: result.fromCache
             });
         } catch (error) {
-            console.error('[LinxTrans] Translation failed:', error);
+            console.error('[zhTrans] Translation failed:', error);
             this.setState({
                 error: (error as Error).message,
                 isLoading: false,

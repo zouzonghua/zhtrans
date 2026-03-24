@@ -16,7 +16,7 @@ export class NativeSubtitleController {
 
         // 创建 style 元素注入 CSS
         this.styleElement = document.createElement('style');
-        this.styleElement.id = 'linxtrans-hide-native-subtitle';
+        this.styleElement.id = 'zhtrans-hide-native-subtitle';
         this.styleElement.textContent = `
             /* 隐藏 YouTube 原生字幕容器 */
             .ytp-caption-window-container {
@@ -24,7 +24,7 @@ export class NativeSubtitleController {
             }
         `;
         document.head.appendChild(this.styleElement);
-        console.log('[LinxTrans] Native subtitles hidden');
+        console.log('[zhTrans] Native subtitles hidden');
     }
 
     /**
@@ -34,7 +34,7 @@ export class NativeSubtitleController {
         if (this.styleElement) {
             this.styleElement.remove();
             this.styleElement = null;
-            console.log('[LinxTrans] Native subtitles restored');
+            console.log('[zhTrans] Native subtitles restored');
         }
     }
 

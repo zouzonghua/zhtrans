@@ -25,7 +25,7 @@ export const LookupApp = (props: Props) => {
   const { handleTriggerClick, handleExternalClick, handleSpeak, handleRetry, handleReposition } = actions;
 
   return (
-    <div id="linxtrans-wrapper">
+    <div id="zhtrans-wrapper">
       {triggerPos && (
         <Trigger
           x={triggerPos.x}
@@ -38,7 +38,7 @@ export const LookupApp = (props: Props) => {
       {popupPos && (result || isLoading || error) && (
         <Popup
           {...popupPos}
-          className={isClosing ? 'linxtrans-popup--closing' : ''}
+          className={isClosing ? 'zhtrans-popup--closing' : ''}
           onExternalClick={handleExternalClick}
           onReposition={handleReposition}
         >

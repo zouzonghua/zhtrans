@@ -86,19 +86,19 @@ export const HistoryApp = ({ useCase, speakUseCase }: Props) => {
     }, [handleLoadMore, filteredHistory.length, hasMore, loadingMore, loading]);
 
     return (
-        <div className="linxtrans-history">
-            <header className="linxtrans-history__header">
-                <div className="linxtrans-history__top-bar">
+        <div className="zhtrans-history">
+            <header className="zhtrans-history__header">
+                <div className="zhtrans-history__top-bar">
                     <h2>
                         History <span style={{ fontSize: '11px', fontWeight: 'normal', opacity: 0.5, marginLeft: '4px' }}>v{__APP_VERSION__}</span>
                     </h2>
                 </div>
 
                 {/* Segmented Control Tabs */}
-                <div className="linxtrans-history__tabs">
+                <div className="zhtrans-history__tabs">
                     {/* Sliding indicator background */}
                     <div
-                        className="linxtrans-tab-indicator"
+                        className="zhtrans-tab-indicator"
                         style={{
                             transform: `translateX(${selectedTab === 'all' ? '0px' :
                                 selectedTab === 'lookup' ? 'calc(100% + 6px)' :
@@ -107,28 +107,28 @@ export const HistoryApp = ({ useCase, speakUseCase }: Props) => {
                         }}
                     />
                     <button
-                        className={`linxtrans-tab-btn ${selectedTab === 'all' ? 'linxtrans-tab-btn--active' : ''}`}
+                        className={`zhtrans-tab-btn ${selectedTab === 'all' ? 'zhtrans-tab-btn--active' : ''}`}
                         onClick={() => handleTabChange('all')}
                     >
                         全部
                     </button>
                     <button
-                        className={`linxtrans-tab-btn ${selectedTab === 'lookup' ? 'linxtrans-tab-btn--active' : ''}`}
+                        className={`zhtrans-tab-btn ${selectedTab === 'lookup' ? 'zhtrans-tab-btn--active' : ''}`}
                         onClick={() => handleTabChange('lookup')}
                     >
                         划词
                     </button>
                     <button
-                        className={`linxtrans-tab-btn ${selectedTab === 'subtitle' ? 'linxtrans-tab-btn--active' : ''}`}
+                        className={`zhtrans-tab-btn ${selectedTab === 'subtitle' ? 'zhtrans-tab-btn--active' : ''}`}
                         onClick={() => handleTabChange('subtitle')}
                     >
                         字幕
                     </button>
                 </div>
 
-                <div className="linxtrans-history__search">
-                    <div className="linxtrans-search-wrapper">
-                        <svg className="linxtrans-search-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <div className="zhtrans-history__search">
+                    <div className="zhtrans-search-wrapper">
+                        <svg className="zhtrans-search-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M21 21L15 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
                         <input
@@ -142,25 +142,25 @@ export const HistoryApp = ({ useCase, speakUseCase }: Props) => {
             </header>
 
 
-            <div className="linxtrans-history__content" ref={contentRef}>
+            <div className="zhtrans-history__content" ref={contentRef}>
                 {loading ? (
-                    <div className="linxtrans-history__empty">Loading...</div>
+                    <div className="zhtrans-history__empty">Loading...</div>
                 ) : filteredHistory.length === 0 ? (
-                    <div className="linxtrans-history__empty">
+                    <div className="zhtrans-history__empty">
                         {searchQuery ? 'No matching history found.' : 'No history yet.'}
                     </div>
                 ) : (
                     <>
-                        <ul className="linxtrans-history__list">
+                        <ul className="zhtrans-history__list">
                             {filteredHistory.map((item) => (
-                                <li key={item.original} className="linxtrans-history__item group">
-                                    <div className="linxtrans-history__row">
-                                        <div className="linxtrans-history__original">{item.original}</div>
+                                <li key={item.original} className="zhtrans-history__item group">
+                                    <div className="zhtrans-history__row">
+                                        <div className="zhtrans-history__original">{item.original}</div>
 
                                         {/* Actions: Speak & Delete (Hover to show) */}
-                                        <div className="linxtrans-history__actions">
+                                        <div className="zhtrans-history__actions">
                                             <button
-                                                className={`linxtrans-icon-btn ${speakingItem === item.original ? 'linxtrans-btn--speaking' : ''}`}
+                                                className={`zhtrans-icon-btn ${speakingItem === item.original ? 'zhtrans-btn--speaking' : ''}`}
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     handleSpeak(item.original);
@@ -170,7 +170,7 @@ export const HistoryApp = ({ useCase, speakUseCase }: Props) => {
                                                 <SpeakIcon />
                                             </button>
                                             <button
-                                                className="linxtrans-icon-btn linxtrans-icon-btn--delete"
+                                                className="zhtrans-icon-btn zhtrans-icon-btn--delete"
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     handleDelete(item.original);
@@ -183,19 +183,19 @@ export const HistoryApp = ({ useCase, speakUseCase }: Props) => {
                                             </button>
                                         </div>
                                     </div>
-                                    <div className="linxtrans-history__translated">{item.translated}</div>
+                                    <div className="zhtrans-history__translated">{item.translated}</div>
                                 </li>
                             ))}
                         </ul>
 
                         {/* 加载更多指示器 */}
                         {loadingMore && (
-                            <div className="linxtrans-loading-more">Loading more...</div>
+                            <div className="zhtrans-loading-more">Loading more...</div>
                         )}
 
                         {/* 已加载全部提示 */}
                         {!hasMore && filteredHistory.length > 0 && (
-                            <div className="linxtrans-all-loaded">
+                            <div className="zhtrans-all-loaded">
                                 All {totalCount} items loaded
                             </div>
                         )}
@@ -205,7 +205,7 @@ export const HistoryApp = ({ useCase, speakUseCase }: Props) => {
             </div>
             {/* 回到顶部按钮 - 移到外层容器以固定位置 */}
             <button
-                className={`linxtrans-scroll-top ${showScrollTop ? 'linxtrans-scroll-top--visible' : ''}`}
+                className={`zhtrans-scroll-top ${showScrollTop ? 'zhtrans-scroll-top--visible' : ''}`}
                 onClick={() => {
                     contentRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
                 }}

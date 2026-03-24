@@ -61,7 +61,7 @@ export class CaptionObserver {
         // 1. 优先定位字幕容器 (Scope)，缩小搜索范围
         const container = document.querySelector('.ytp-caption-window-container');
         if (!container) {
-            // console.debug('[LinxTrans] Caption container not found');
+            // console.debug('[zhTrans] Caption container not found');
             return;
         }
 
@@ -69,7 +69,7 @@ export class CaptionObserver {
         const segments = container.querySelectorAll('.ytp-caption-segment');
         if (segments.length === 0) {
             if (this.lastText !== "") {
-                console.log('[LinxTrans] Caption cleared');
+                console.log('[zhTrans] Caption cleared');
                 this.lastText = "";
                 this.onTextChange(""); // 字幕消失通知
             }
@@ -90,7 +90,7 @@ export class CaptionObserver {
 
         // 5. 只有当完整句子发生变化时才通知 (去重)
         if (fullText !== this.lastText) {
-            console.log('[LinxTrans] New caption detected:', fullText);
+            console.log('[zhTrans] New caption detected:', fullText);
             this.lastText = fullText;
             this.onTextChange(fullText);
         }

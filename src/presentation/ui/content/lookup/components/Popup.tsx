@@ -35,21 +35,21 @@ export const Popup = ({ x, y, isBottom, tailPos, children, onExternalClick, onRe
   }, [onReposition]);
 
   return (
-    <div ref={popupRef} className={`linxtrans-popup ${className}`} style={{ left: x, top: y }}>
+    <div ref={popupRef} className={`zhtrans-popup ${className}`} style={{ left: x, top: y }}>
       {/* 定位尖角 */}
       <div
-        className={`linxtrans-popup__tail ${isBottom ? 'linxtrans-popup__tail--top' : 'linxtrans-popup__tail--bottom'}`}
+        className={`zhtrans-popup__tail ${isBottom ? 'zhtrans-popup__tail--top' : 'zhtrans-popup__tail--bottom'}`}
         style={{ left: `${tailPos}%` }}
       >
-        <div className="linxtrans-popup__tail-in"></div>
+        <div className="zhtrans-popup__tail-in"></div>
       </div>
 
       {children}
 
       {/* 底部导航 */}
-      <div className="linxtrans-popup__footer">
-        <div className="linxtrans-popup__footer-item" onClick={() => onExternalClick('dict')}>{LABEL_DICT}</div>
-        <div className="linxtrans-popup__footer-item" onClick={() => onExternalClick('wiki')}>{LABEL_WIKI}</div>
+      <div className="zhtrans-popup__footer">
+        <div className="zhtrans-popup__footer-item" onClick={() => onExternalClick('dict')}>{LABEL_DICT}</div>
+        <div className="zhtrans-popup__footer-item" onClick={() => onExternalClick('wiki')}>{LABEL_WIKI}</div>
       </div>
     </div>
   );

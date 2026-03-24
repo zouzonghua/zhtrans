@@ -12,7 +12,7 @@ interface TriggerProps {
  */
 export const Trigger = ({ x, y, isLoading, onMouseDown }: TriggerProps) => (
   <div
-    className={`linxtrans-trigger ${isLoading ? 'linxtrans-trigger--loading' : ''}`}
+    className={`zhtrans-trigger ${isLoading ? 'zhtrans-trigger--loading' : ''}`}
     style={{ left: x, top: y }}
     onMouseDown={onMouseDown}
   >

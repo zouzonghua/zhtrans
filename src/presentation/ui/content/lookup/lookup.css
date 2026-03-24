@@ -1,4 +1,4 @@
-/* LinxTransApp Styles */
+/* zhTransApp Styles */
 @import "tailwindcss";
 
 /* Tailwind v4 Theme Customization - Complete rem to px conversion */
@@ -168,42 +168,42 @@
 
 /* Trigger Block */
 /* Trigger Block */
-.linxtrans-trigger {
+.zhtrans-trigger {
   @apply fixed w-[28px] h-[28px] bg-white rounded-full flex items-center justify-center z-[2147483647] cursor-pointer border shadow-lg transition-all duration-200;
   border-color: rgba(0, 0, 0, 0.08);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
 @media (prefers-color-scheme: dark) {
-  .linxtrans-trigger {
+  .zhtrans-trigger {
     @apply bg-[#2c2c2e]/90 backdrop-blur-sm;
     border-color: rgba(255, 255, 255, 0.1);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   }
 }
 
-.linxtrans-trigger:hover {
+.zhtrans-trigger:hover {
   @apply scale-110 shadow-xl;
   transform: translateY(-1px) scale(1.1);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
-.linxtrans-trigger svg {
+.zhtrans-trigger svg {
   @apply w-4 h-4;
   fill: var(--accent);
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
 }
 
-.linxtrans-trigger--loading #loading-icon {
+.zhtrans-trigger--loading #loading-icon {
   @apply !flex animate-spin;
 }
 
-.linxtrans-trigger--loading #search-icon {
+.zhtrans-trigger--loading #search-icon {
   @apply !hidden;
 }
 
 /* Popup Block */
-.linxtrans-popup {
+.zhtrans-popup {
   @apply fixed w-[320px] rounded-2xl flex flex-col z-[2147483647] border transition-all duration-200 origin-center;
   background: var(--bg);
   backdrop-filter: blur(50px) saturate(180%);
@@ -212,26 +212,26 @@
   filter: drop-shadow(0 8px 32px rgba(0, 0, 0, 0.2));
 }
 
-.linxtrans-popup--closing {
+.zhtrans-popup--closing {
   @apply opacity-0 scale-95;
 }
 
 @media (prefers-color-scheme: dark) {
-  .linxtrans-popup {
+  .zhtrans-popup {
     /* Slightly different shadow for dark mode visibility */
     filter: drop-shadow(0 12px 40px rgba(0, 0, 0, 0.4));
   }
 }
 
-.linxtrans-popup__content {
+.zhtrans-popup__content {
   @apply p-4 max-h-[400px] overflow-y-auto;
 }
 
-.linxtrans-popup__header {
+.zhtrans-popup__header {
   @apply flex items-start gap-3 mb-1;
 }
 
-.linxtrans-popup__word {
+.zhtrans-popup__word {
   font-size: var(--text-xl);
   line-height: var(--text-xl--line-height);
   font-weight: bold;
@@ -241,7 +241,7 @@
   color: var(--text);
 }
 
-.linxtrans-popup__phonetic {
+.zhtrans-popup__phonetic {
   font-size: var(--text-sm);
   line-height: var(--text-sm--line-height);
   margin-top: 4px;
@@ -250,7 +250,7 @@
   font-family: "SF Pro Text", sans-serif;
 }
 
-.linxtrans-popup__def-row {
+.zhtrans-popup__def-row {
   display: flex;
   gap: 8px;
   font-size: var(--text-sm);
@@ -260,7 +260,7 @@
   color: var(--text);
 }
 
-.linxtrans-popup__footer {
+.zhtrans-popup__footer {
   height: 40px;
   border-top: 1px solid;
   display: flex;
@@ -276,22 +276,22 @@
 }
 
 @media (prefers-color-scheme: light) {
-  .linxtrans-popup__footer {
+  .zhtrans-popup__footer {
     background: rgba(0, 0, 0, 0.03);
   }
 }
 
-.linxtrans-popup__footer-item {
+.zhtrans-popup__footer-item {
   @apply cursor-pointer px-3 py-1.5 rounded-md transition-colors duration-200 font-medium opacity-90;
 }
 
-.linxtrans-popup__footer-item:hover {
+.zhtrans-popup__footer-item:hover {
   @apply bg-white/10;
   color: var(--text);
   opacity: 1;
 }
 
-.linxtrans-popup__section-label {
+.zhtrans-popup__section-label {
   font-size: var(--text-xs);
   line-height: 1;
   font-weight: bold;
@@ -306,7 +306,7 @@
   border-color: var(--line);
 }
 
-.linxtrans-popup__original {
+.zhtrans-popup__original {
   font-size: var(--text-sm);
   line-height: 1.625;
   margin-bottom: 12px;
@@ -316,7 +316,7 @@
 }
 
 /* Popup Tail Element */
-.linxtrans-popup__tail {
+.zhtrans-popup__tail {
   @apply absolute left-1/2 w-4 h-4 pointer-events-none z-10;
   transform: translateX(-50%) rotate(45deg);
   background: var(--bg);
@@ -327,7 +327,7 @@
 }
 
 /* Remove the old inner triangle logic */
-.linxtrans-popup__tail-in {
+.zhtrans-popup__tail-in {
   @apply hidden;
 }
 
@@ -338,37 +338,37 @@
 /* We want arrow pointing DOWN. So we want the Bottom corner. */
 /* That corresponds to Bottom-Right triangle of unrotated box. */
 /* Clip Path: Keep Bottom-Right half. 0 100, 100 100, 100 0. */
-.linxtrans-popup__tail--bottom {
+.zhtrans-popup__tail--bottom {
   @apply -bottom-2;
   clip-path: polygon(100% 0, 100% 100%, 0% 100%);
 }
 
 /* Tail at Top (Pointing Up): Keep TOP-LEFT triangle. */
 /* Clip Path: 0 0, 100 0, 0 100. */
-.linxtrans-popup__tail--top {
+.zhtrans-popup__tail--top {
   @apply -top-2;
   clip-path: polygon(0% 0%, 100% 0%, 0% 100%);
 }
 
 /* Button Block */
-.linxtrans-btn {
+.zhtrans-btn {
   @apply cursor-pointer border-none bg-transparent p-1 rounded-md flex items-center transition-colors;
 }
 
-.linxtrans-btn:hover {
+.zhtrans-btn:hover {
   @apply bg-white/10;
 }
 
-.linxtrans-btn svg {
+.zhtrans-btn svg {
   @apply w-4 h-4;
   fill: var(--accent);
 }
 
-.linxtrans-btn--speaking {
+.zhtrans-btn--speaking {
   @apply animate-pulse;
 }
 
-.linxtrans-btn--retry {
+.zhtrans-btn--retry {
   padding: 6px 12px;
   font-size: var(--text-xs);
   line-height: var(--text-xs--line-height);
@@ -380,23 +380,23 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  .linxtrans-btn--retry {
+  .zhtrans-btn--retry {
     background: rgba(255, 255, 255, 0.06);
   }
 }
 
-.linxtrans-error {
+.zhtrans-error {
   @apply flex flex-col gap-2;
   color: var(--text);
 }
 
-.linxtrans-error__title {
+.zhtrans-error__title {
   font-size: var(--text-sm);
   line-height: var(--text-sm--line-height);
   font-weight: 600;
 }
 
-.linxtrans-error__message {
+.zhtrans-error__message {
   font-size: var(--text-xs);
   line-height: var(--text-xs--line-height);
   opacity: 0.8;
@@ -411,7 +411,7 @@
 
 
 /* Utilities */
-.linxtrans-lang-header {
+.zhtrans-lang-header {
   font-size: var(--text-xs);
   line-height: 1;
   margin-bottom: 6px;
@@ -423,26 +423,26 @@
   color: var(--sub);
 }
 
-.linxtrans-separator {
+.zhtrans-separator {
   @apply flex-1 h-[0.5px];
   background: var(--line);
 }
 
-.linxtrans-phonetic-sub {
+.zhtrans-phonetic-sub {
   @apply mt-0.5 italic opacity-80;
 }
 
-.linxtrans-def-number {
+.zhtrans-def-number {
   @apply min-w-[16px] text-center font-medium opacity-70;
   color: var(--sub);
 }
 
 /* Skeleton Loading */
-.linxtrans-skeleton {
+.zhtrans-skeleton {
   @apply pt-2 flex flex-col gap-2.5;
 }
 
-.linxtrans-skeleton__line {
+.zhtrans-skeleton__line {
   @apply h-3 rounded-full animate-pulse;
   background: var(--line);
 }

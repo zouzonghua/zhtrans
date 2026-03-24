@@ -7,7 +7,7 @@ import styles from '@/presentation/ui/content/lookup/lookup.css?inline';
 export function mountLookupUI(useCase: LookupUseCase, speakUseCase: SpeakTextUseCase) {
   // 创建 Shadow DOM 的宿主元素
   const container = document.createElement('div');
-  container.id = 'linxtrans-host';
+  container.id = 'zhtrans-host';
   document.body.appendChild(container);
 
   // 使用 Shadow DOM (mode: open) 隔离插件样式，防止被宿主页面的 CSS 污染
@@ -30,12 +30,12 @@ export function mountLookupUI(useCase: LookupUseCase, speakUseCase: SpeakTextUse
 
   /**
    * 监听全局点击事件以关闭 UI。
-   * 注意：因为使用了 Shadow DOM，点击内部元素时 e.target 会被重定向到宿主元素 (linxtrans-host)。
+   * 注意：因为使用了 Shadow DOM，点击内部元素时 e.target 会被重定向到宿主元素 (zhtrans-host)。
    */
   document.addEventListener('mousedown', (e) => {
     const target = e.target as HTMLElement;
-    if (target.id !== 'linxtrans-host') {
-      window.dispatchEvent(new CustomEvent('linxtrans:hide'));
+    if (target.id !== 'zhtrans-host') {
+      window.dispatchEvent(new CustomEvent('zhtrans:hide'));
     }
   });
 }

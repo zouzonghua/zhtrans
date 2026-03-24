@@ -36,7 +36,7 @@ export class TranslateSubtitleUseCase {
 
         // 0. 检查内存缓存 (最快，无 IO)
         if (this.memoryCache.has(trimmedText)) {
-            console.log('[LinxTrans] Memory Cache Hit:', trimmedText);
+            console.log('[zhTrans] Memory Cache Hit:', trimmedText);
             return {
                 translation: this.memoryCache.get(trimmedText)!,
                 fromCache: true

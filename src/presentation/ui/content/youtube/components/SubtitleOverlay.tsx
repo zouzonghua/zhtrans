@@ -29,7 +29,7 @@ export const SubtitleOverlay = ({ state }: Props) => {
             alignItems: 'flex-end',
         }}>
 
-            <div className="linxtrans-subtitle-overlay" style={{
+            <div className="zhtrans-subtitle-overlay" style={{
                 // position: 'absolute',
                 marginBottom: '100px', // 距离底部的高度，预留给 YouTube 进度条
                 // left: '50%',
