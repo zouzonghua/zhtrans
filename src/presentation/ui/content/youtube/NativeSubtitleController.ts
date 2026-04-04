@@ -24,7 +24,7 @@ export class NativeSubtitleController {
             }
         `;
         document.head.appendChild(this.styleElement);
-        console.log('[zhTrans] Native subtitles hidden');
+        console.log('[ZhTrans] Native subtitles hidden');
     }
 
     /**
@@ -34,7 +34,7 @@ export class NativeSubtitleController {
         if (this.styleElement) {
             this.styleElement.remove();
             this.styleElement = null;
-            console.log('[zhTrans] Native subtitles restored');
+            console.log('[ZhTrans] Native subtitles restored');
         }
     }
 

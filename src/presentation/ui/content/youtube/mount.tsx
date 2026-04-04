@@ -14,7 +14,7 @@ let activeUseCase: TranslateSubtitleUseCase | null = null;
 
 const handleYoutubeNavigation = () => {
     if (!activeUseCase) return;
-    console.log('[zhTrans] YouTube navigation detected, remounting UI...');
+    console.log('[ZhTrans] YouTube navigation detected, remounting UI...');
     cleanup();
     tryMount(activeUseCase);
 };
@@ -61,7 +61,7 @@ function cleanup() {
         render(null as any, host);
         // 2. 移除 DOM 节点
         host.remove();
-        console.log('[zhTrans] Old UI cleaned up.');
+        console.log('[ZhTrans] Old UI cleaned up.');
     }
 
     nativeSubtitleController.show();
@@ -113,7 +113,7 @@ function tryMount(useCase: TranslateSubtitleUseCase) {
 function inject(player: Element, useCase: TranslateSubtitleUseCase) {
     // 1. 防重复检查：如果已经存在我们的宿主节点，就直接返回
     if (player.querySelector('#zhtrans-youtube-subtitle-host')) {
-        // console.log('[zhTrans] UI already injected.');
+        // console.log('[ZhTrans] UI already injected.');
         return;
     }
 
@@ -139,5 +139,5 @@ function inject(player: Element, useCase: TranslateSubtitleUseCase) {
     // 6. 隐藏 YouTube 原生字幕，避免与翻译字幕重叠
     nativeSubtitleController.hide();
 
-    // console.log('[zhTrans] UI injected successfully.');
+    // console.log('[ZhTrans] UI injected successfully.');
 }

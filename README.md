@@ -1,6 +1,6 @@
-# zhTrans
+# ZhTrans
 
-zhTrans 是一个基于 Chrome Extension Manifest V3 的翻译插件，当前主要提供两类能力：
+ZhTrans 是一个基于 Chrome Extension Manifest V3 的翻译插件，当前主要提供两类能力：
 
 - 网页划词翻译
 - YouTube 字幕实时翻译
@@ -156,6 +156,12 @@ npm run dev
 npm run build
 ```
 
+打包为 Chrome 可分发 zip：
+
+```bash
+npm run package:chrome
+```
+
 运行测试：
 
 ```bash
@@ -175,6 +181,30 @@ TypeScript 类型检查：
 3. 开启右上角的开发者模式
 4. 点击“加载已解压的扩展程序”
 5. 选择项目下的 `dist/` 目录
+
+## 打包说明
+
+这个项目本身就是 Chrome Extension Manifest V3 项目，Chrome 可识别的“插件格式”实际上有两种：
+
+- 开发安装格式：直接加载 `dist/` 目录（最常用）
+- 分发压缩格式：把 `dist/` 下的内容压成一个 zip，用于交付、备份或上传到 Chrome Web Store 前的产物归档
+
+执行：
+
+```bash
+npm run package:chrome
+```
+
+会得到：
+
+```text
+release/ZhTrans-chrome.zip
+```
+
+注意：
+
+- zip 内应直接包含 `manifest.json`、`background.js`、`content.js`、`popup.js` 等文件，而不是再包一层 `dist/` 目录
+- 当前 popup 页面实际构建到 `dist/src/presentation/ui/chrome/popup.html`，因此 manifest 中必须引用这个构建后的相对路径
 
 ## 已知限制
 

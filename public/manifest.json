@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "zhTrans",
+  "name": "ZhTrans",
   "version": "1.0.0",
-  "description": "Clean Architecture implementation of zhTrans.",
+  "description": "ZhTrans browser translation assistant for web pages and YouTube subtitles.",
   "background": {
     "service_worker": "background.js"
   },
@@ -29,7 +29,7 @@
   },
   "action": {
     "default_icon": "icon.png",
-    "default_title": "zhTrans",
-    "default_popup": "/src/presentation/ui/chrome/popup.html"
+    "default_title": "ZhTrans",
+    "default_popup": "src/presentation/ui/chrome/popup.html"
   }
 }

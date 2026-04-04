@@ -6,7 +6,7 @@ import { useSelectionTrigger } from './useSelectionTrigger';
 import { useShortcuts } from './useShortcuts';
 
 /**
- * zhTrans ViewModel Binder (Preact 适配器)
+ * ZhTrans ViewModel Binder (Preact 适配器)
  * 
  * 职责：
  * 1. 实例化纯 TypeScript 的 ViewModel (zhTransViewModel)
