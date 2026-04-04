@@ -207,11 +207,27 @@ TypeScript 类型检查：
 
 ## 安装到 Chrome
 
+### 本地开发安装
+
 1. 运行 `npm run build`
 2. 打开 `chrome://extensions/`
 3. 开启右上角的开发者模式
 4. 点击“加载已解压的扩展程序”
 5. 选择项目下的 `dist/` 目录
+
+### 从 GitHub Release 安装
+
+1. 下载 Release 附带的 `ZhTrans-chrome.zip`
+2. 将 zip 解压到本地目录
+3. 打开 `chrome://extensions/`
+4. 开启右上角的开发者模式
+5. 点击“加载已解压的扩展程序”
+6. 选择解压后的目录
+
+说明：
+
+- Chrome 开发者模式安装时，不能直接选择 zip 文件，必须先解压
+- 选择的目录中应直接包含 `manifest.json`
 
 ## 打包说明
 
