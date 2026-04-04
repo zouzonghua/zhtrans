@@ -162,6 +162,37 @@ npm run build
 npm run package:chrome
 ```
 
+## CI / Release
+
+仓库已配置 GitHub Actions：
+
+- `CI`：在 `push` 到 `main` / `master` 以及 `pull_request` 时运行测试和构建
+- `Release Please`：在 `main` 上根据 Conventional Commits 自动维护 Release PR；合并该 PR 后自动创建 tag、GitHub Release，并上传扩展 zip
+
+发布流程：
+
+1. 日常开发提交尽量使用 Conventional Commits，例如：
+
+```bash
+feat: add popup search highlight
+fix: handle invalidated extension context
+```
+
+2. 合并到 `main` 后，GitHub Actions 会自动创建或更新 Release PR
+3. 准备发版时，直接合并这个 Release PR
+4. 合并后会自动：
+
+- 更新 `CHANGELOG.md`
+- 更新 `package.json` 版本
+- 创建 `vX.Y.Z` tag
+- 创建 GitHub Release
+- 上传 `ZhTrans-chrome.zip`
+
+说明：
+
+- 不再需要手动执行 `git tag v1.0.0 && git push origin v1.0.0`
+- 如果希望 Release PR 也触发完整 CI，建议在仓库 secret 中配置 `RELEASE_PLEASE_TOKEN`（PAT）；否则默认使用 `GITHUB_TOKEN`
+
 运行测试：
 
 ```bash
