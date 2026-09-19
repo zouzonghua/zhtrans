@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/zouzonghua/zhtrans/compare/zhtrans-v1.1.0...zhtrans-v1.1.1) (2026-09-19)
+
+
+### Bug Fixes
+
+* **release:** 修复 Chrome 压缩包文件名大小写不一致 ([c82797b](https://github.com/zouzonghua/zhtrans/commit/c82797bfdf7f4efce3059d44d89fd2025fbf6e3b))
+
 ## [1.1.0](https://github.com/zouzonghua/zhtrans/compare/zhtrans-v1.0.0...zhtrans-v1.1.0) (2026-04-04)
 
 
