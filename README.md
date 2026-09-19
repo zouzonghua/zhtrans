@@ -1,9 +1,10 @@
 # ZhTrans
 
-ZhTrans 是一个基于 Chrome Extension Manifest V3 的翻译插件，当前主要提供两类能力：
+ZhTrans 是一个基于 Chrome Extension Manifest V3 的翻译插件，当前主要提供三类能力：
 
 - 网页划词翻译
 - YouTube 字幕实时翻译
+- Microsoft Teams Web 实时字幕翻译
 
 项目使用 TypeScript、Vite 和 Preact 实现，并通过分层结构把 UI、业务逻辑和 Chrome 平台能力做了基础拆分。
 
@@ -12,7 +13,8 @@ ZhTrans 是一个基于 Chrome Extension Manifest V3 的翻译插件，当前主
 - 划词后显示触发按钮，点击后弹出翻译结果
 - 支持词典释义、音标展示和原文朗读
 - 在 YouTube 页面监听字幕变化并实时翻译
-- 将翻译结果缓存到 `chrome.storage.local`
+- 在 Microsoft Teams Web 中显示“说话人 + 原文 + 译文”双语字幕
+- 将划词和 YouTube 翻译结果缓存到 `chrome.storage.local`
 - 在扩展 popup 中查看、搜索、筛选和删除历史记录
 
 ## 技术栈
@@ -36,7 +38,7 @@ ZhTrans 是一个基于 Chrome Extension Manifest V3 的翻译插件，当前主
 职责：
 
 - 在网页中组装依赖并注入划词翻译 UI
-- 在 YouTube 页面按需挂载字幕翻译 UI
+- 在 YouTube 和 Microsoft Teams Web 页面按需挂载字幕翻译 UI
 - 连接 `LookupUseCase`、`TranslateSubtitleUseCase` 与页面交互
 
 ### 2. Background Service Worker
@@ -95,7 +97,7 @@ src/
 
 负责页面交互和渲染：
 
-- content / popup / youtube 三类 UI
+- content / popup / youtube / teams 四类 UI
 - ViewModel 状态管理
 - 绑定 Preact 的 hooks
 - Shadow DOM 挂载和页面事件监听
@@ -206,6 +208,28 @@ TypeScript 类型检查：
 ```bash
 ./node_modules/.bin/tsc --noEmit
 ```
+
+## Microsoft Teams Web 字幕翻译
+
+当前支持以下 Teams Web 域名：
+
+- `teams.microsoft.com`
+- `teams.cloud.microsoft`
+- `teams.live.com`
+
+使用步骤：
+
+1. 在浏览器中进入 Teams 会议
+2. 在 Teams 的“更多”菜单中开启实时字幕
+3. 页面右下角出现“ZhTrans 已就绪”后，扩展会自动识别稳定字幕并显示双语浮层
+
+说明：
+
+- 仅支持 Teams Web，不支持 Teams 桌面客户端
+- 企业管理员禁用实时字幕时，扩展无法获取字幕
+- Teams 字幕不会写入 ZhTrans 历史记录，但原文会发送到当前翻译服务
+- MVP 默认自动识别中英文：中文翻译为英文，其他语言翻译为简体中文
+- Teams 页面结构变化可能导致字幕识别失效
 
 ## 安装到 Chrome
 

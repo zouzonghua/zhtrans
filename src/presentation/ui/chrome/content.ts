@@ -42,4 +42,21 @@ if (window.location.hostname.includes('youtube.com')) {
     });
 }
 
+const teamsHosts = ['teams.microsoft.com', 'teams.cloud.microsoft', 'teams.live.com'];
+const isTeamsWeb = teamsHosts.some((host) =>
+    window.location.hostname === host || window.location.hostname.endsWith(`.${host}`)
+);
+
+if (isTeamsWeb) {
+    Promise.all([
+        import('@/presentation/ui/content/teams/mount'),
+        import('@/domain/usecases/TranslateSubtitleUseCase'),
+    ]).then(([{ mountTeamsSubtitleUI }, { TranslateSubtitleUseCase }]) => {
+        const subtitleTranslator = new GoogleTranslator('subtitle');
+        // Teams 会议字幕可能包含敏感内容，MVP 仅使用内存缓存，不写入翻译历史。
+        const subtitleUseCase = new TranslateSubtitleUseCase(subtitleTranslator);
+        mountTeamsSubtitleUI(subtitleUseCase);
+    });
+}
+
 
