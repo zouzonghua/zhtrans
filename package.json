@@ -8,7 +8,7 @@
     "dev:app": "BUILD_TARGET=app vite build --watch --mode development",
     "dev:content": "BUILD_TARGET=content vite build --watch --mode development",
     "build": "npm run clean && BUILD_TARGET=app vite build && BUILD_TARGET=content vite build",
-    "package:chrome": "npm run build && rm -rf release && mkdir -p release && cd dist && zip -qr ../release/ZhTrans-chrome.zip .",
+    "package:chrome": "npm run build && rm -rf release && mkdir -p release && cd dist && zip -qr ../release/zhtrans-chrome.zip .",
     "clean": "rm -rf dist",
     "test": "vitest run",
     "test:watch": "vitest"

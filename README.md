@@ -186,7 +186,7 @@ fix: handle invalidated extension context
 - 更新 `package.json` 版本
 - 创建 `vX.Y.Z` tag
 - 创建 GitHub Release
-- 上传 `ZhTrans-chrome.zip`
+- 上传 `zhtrans-chrome.zip`
 
 说明：
 
@@ -217,7 +217,7 @@ TypeScript 类型检查：
 
 ### 从 GitHub Release 安装
 
-1. 下载 Release 附带的 `ZhTrans-chrome.zip`
+1. 下载 Release 附带的 `zhtrans-chrome.zip`
 2. 将 zip 解压到本地目录
 3. 打开 `chrome://extensions/`
 4. 开启右上角的开发者模式
@@ -245,7 +245,7 @@ npm run package:chrome
 会得到：
 
 ```text
-release/ZhTrans-chrome.zip
+release/zhtrans-chrome.zip
 ```
 
 注意：
