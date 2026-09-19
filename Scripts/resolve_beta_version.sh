@@ -1,13 +1,6 @@
 #!/bin/bash
 set -euo pipefail
 
-beta_number="${1:-}"
-
-if [[ ! "$beta_number" =~ ^[1-9][0-9]*$ ]]; then
-    echo "Beta releases require a positive numeric beta number." >&2
-    exit 1
-fi
-
 initial_version="$(node -p "require('./package.json').version")"
 
 if [[ ! "$initial_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
@@ -26,19 +19,19 @@ write_output() {
     fi
 }
 
-# 同时兼容未来的 vX.Y.Z 与已有的 zhtrans-vX.Y.Z 正式 tag。
-latest_stable="$({
-    git tag | awk '
-        /^v[0-9]+\.[0-9]+\.[0-9]+$/ { print substr($0, 2), $0 }
-        /^zhtrans-v[0-9]+\.[0-9]+\.[0-9]+$/ { print substr($0, 10), $0 }
-    '
-} | sort -k1,1V | tail -n 1 || true)"
+latest_stable_tag="$(
+    git tag |
+        grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' |
+        sort -V |
+        tail -n 1 || true
+)"
 
-if [[ -z "$latest_stable" ]]; then
+if [[ -z "$latest_stable_tag" ]]; then
     target_version="$initial_version"
     release_base=""
 else
-    read -r target_version release_base <<< "$latest_stable"
+    target_version="${latest_stable_tag#v}"
+    release_base="$latest_stable_tag"
 fi
 
 if [[ -n "$release_base" ]] && git merge-base --is-ancestor "$release_base" HEAD; then
@@ -72,9 +65,10 @@ case "$bump" in
         ;;
 esac
 
+beta_tag_pattern="^v${next_version//./\\.}-beta\.[0-9]+$"
 beta_tag_at_head="$(
     git tag --points-at HEAD |
-        grep -E "^v${next_version//./\\.}-beta\.[0-9]+$" |
+        grep -E "$beta_tag_pattern" |
         sort -V |
         tail -n 1 || true
 )"
@@ -82,6 +76,19 @@ beta_tag_at_head="$(
 if [[ -n "$beta_tag_at_head" ]]; then
     release_tag="$beta_tag_at_head"
 else
+    latest_beta_tag="$(
+        git tag |
+            grep -E "$beta_tag_pattern" |
+            sort -V |
+            tail -n 1 || true
+    )"
+
+    if [[ -z "$latest_beta_tag" ]]; then
+        beta_number=1
+    else
+        beta_number="$((${latest_beta_tag##*.} + 1))"
+    fi
+
     release_tag="v${next_version}-beta.${beta_number}"
 fi
 

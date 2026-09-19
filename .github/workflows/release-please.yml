@@ -84,9 +84,7 @@ jobs:
 
       - name: Resolve beta version
         id: beta
-        env:
-          BETA_NUMBER: ${{ github.run_number }}
-        run: ./Scripts/resolve_beta_version.sh "$BETA_NUMBER"
+        run: ./Scripts/resolve_beta_version.sh
 
       - name: Setup Node.js
         if: steps.beta.outputs.skip != 'true'
