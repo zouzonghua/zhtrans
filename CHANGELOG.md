@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.2.0](https://github.com/zouzonghua/zhtrans/compare/v1.1.1...v1.2.0) (2026-09-19)
+
+
+### Features
+
+* **ci:** 增加 main 合并后的 Beta 自动发布 ([edb62be](https://github.com/zouzonghua/zhtrans/commit/edb62be166103303b79e8b55165046f0dc698145))
+* **ci:** 增加 main 合并后的 Beta 自动发布 ([2e17644](https://github.com/zouzonghua/zhtrans/commit/2e17644dc8adfcad7ab8ecd1bfb38fbdf2adb89b))
+* **teams:** 支持 Web 会议实时字幕翻译 ([#7](https://github.com/zouzonghua/zhtrans/issues/7)) ([ec6a50b](https://github.com/zouzonghua/zhtrans/commit/ec6a50b887c15aa3431093ce1ae8363f514597b6))
+
+
+### Bug Fixes
+
+* **ci:** 按版本递增 Beta 序号 ([4273b80](https://github.com/zouzonghua/zhtrans/commit/4273b8080f18c892f1fbb450bd4fcf8e21742322))
+* **ci:** 按版本递增 Beta 序号 ([b66a0fe](https://github.com/zouzonghua/zhtrans/commit/b66a0fe1fd5dcbcd842aaa860d3ac17fa687e6c0))
+
 ## [1.1.1](https://github.com/zouzonghua/zhtrans/compare/zhtrans-v1.1.0...zhtrans-v1.1.1) (2026-09-19)
 
 
