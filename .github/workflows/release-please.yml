@@ -1,4 +1,4 @@
-name: Release Please
+name: Release
 
 on:
   push:
@@ -7,13 +7,34 @@ on:
 
 permissions:
   contents: write
-  issues: write
   pull-requests: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
 
 jobs:
   release-please:
+    name: Release Please PR
     runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+    steps:
+      - name: Run Release Please
+        id: release
+        uses: googleapis/release-please-action@v4
+        with:
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN || secrets.GITHUB_TOKEN }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
 
+  build-stable:
+    name: Build stable release assets
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -30,20 +51,97 @@ jobs:
       - name: Run tests
         run: npm test
 
-      - name: Run release-please
-        id: release
-        uses: googleapis/release-please-action@v4
-        with:
-          token: ${{ secrets.RELEASE_PLEASE_TOKEN || secrets.GITHUB_TOKEN }}
-          config-file: release-please-config.json
-          manifest-file: .release-please-manifest.json
-
-      - name: Build release package
-        if: ${{ steps.release.outputs.release_created }}
+      - name: Package extension
         run: npm run package:chrome
 
-      - name: Upload release asset
-        if: ${{ steps.release.outputs.release_created }}
+      - name: Generate and verify SHA256
+        working-directory: release
+        run: |
+          sha256sum zhtrans-chrome.zip > zhtrans-chrome.zip.sha256
+          sha256sum --check zhtrans-chrome.zip.sha256
+
+      - name: Upload release assets
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload ${{ steps.release.outputs.tag_name }} release/zhtrans-chrome.zip --clobber
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ needs.release-please.outputs.tag_name }}
+        run: |
+          gh release upload "$RELEASE_TAG" \
+            release/zhtrans-chrome.zip \
+            release/zhtrans-chrome.zip.sha256 \
+            --clobber
+
+  build-beta:
+    name: Build beta release
+    needs: release-please
+    if: needs.release-please.outputs.release_created != 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve beta version
+        id: beta
+        env:
+          BETA_NUMBER: ${{ github.run_number }}
+        run: ./Scripts/resolve_beta_version.sh "$BETA_NUMBER"
+
+      - name: Setup Node.js
+        if: steps.beta.outputs.skip != 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        if: steps.beta.outputs.skip != 'true'
+        run: npm ci
+
+      - name: Run tests
+        if: steps.beta.outputs.skip != 'true'
+        run: npm test
+
+      - name: Package extension
+        if: steps.beta.outputs.skip != 'true'
+        run: npm run package:chrome
+
+      - name: Generate and verify SHA256
+        if: steps.beta.outputs.skip != 'true'
+        working-directory: release
+        run: |
+          sha256sum zhtrans-chrome.zip > zhtrans-chrome.zip.sha256
+          sha256sum --check zhtrans-chrome.zip.sha256
+
+      - name: Create Git tag
+        if: steps.beta.outputs.skip != 'true'
+        env:
+          RELEASE_TAG: ${{ steps.beta.outputs.tag }}
+        run: |
+          if git rev-parse "$RELEASE_TAG" >/dev/null 2>&1; then
+            echo "Tag $RELEASE_TAG already exists."
+          else
+            git tag "$RELEASE_TAG" "$GITHUB_SHA"
+            git push origin "$RELEASE_TAG"
+          fi
+
+      - name: Create GitHub Beta pre-release
+        if: steps.beta.outputs.skip != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ steps.beta.outputs.tag }}
+        run: |
+          assets=(
+            release/zhtrans-chrome.zip
+            release/zhtrans-chrome.zip.sha256
+          )
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release upload "$RELEASE_TAG" "${assets[@]}" --clobber
+          else
+            gh release create "$RELEASE_TAG" \
+              --title "$RELEASE_TAG" \
+              --prerelease \
+              --generate-notes \
+              "${assets[@]}"
+          fi
