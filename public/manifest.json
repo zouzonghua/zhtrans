@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "ZhTrans",
   "version": "1.0.0",
-  "description": "ZhTrans browser translation assistant for web pages and YouTube subtitles.",
+  "description": "ZhTrans browser translation assistant for web pages, YouTube, and Microsoft Teams Web captions.",
   "background": {
     "service_worker": "background.js"
   },
