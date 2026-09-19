@@ -164,34 +164,36 @@ npm run package:chrome
 
 ## CI / Release
 
-仓库已配置 GitHub Actions：
+仓库采用 GitHub Flow 单主干模式，并配置了 GitHub Actions：
 
-- `CI`：在 `push` 到 `main` / `master` 以及 `pull_request` 时运行测试和构建
-- `Release Please`：在 `main` 上根据 Conventional Commits 自动维护 Release PR；合并该 PR 后自动创建 tag、GitHub Release，并上传扩展 zip
+- `CI`：提交到 `main` 的 PR 会运行测试和构建，也支持手动触发
+- `Release`：合并到 `main` 后自动发布 Beta，并由 Release Please 维护正式版本 PR
 
-发布流程：
+开发与发布流程：
 
-1. 日常开发提交尽量使用 Conventional Commits，例如：
+1. 从 `main` 创建 `feat/*` 或 `fix/*` 短期分支
+2. 使用 Conventional Commits 提交，例如：
 
 ```bash
 feat: add popup search highlight
 fix: handle invalidated extension context
 ```
 
-2. 合并到 `main` 后，GitHub Actions 会自动创建或更新 Release PR
-3. 准备发版时，直接合并这个 Release PR
-4. 合并后会自动：
+3. 通过 PR 合并到 `main`
+4. 若包含 `feat`、`fix`、`perf` 或破坏性变更，自动创建 `vX.Y.Z-beta.N` Tag 和 GitHub Pre-release
+5. Release Please 同时创建或更新正式发布 PR
+6. 合并正式发布 PR 后自动：
 
-- 更新 `CHANGELOG.md`
-- 更新 `package.json` 版本
-- 创建 `vX.Y.Z` tag
-- 创建 GitHub Release
-- 上传 `zhtrans-chrome.zip`
+- 更新 `CHANGELOG.md` 和 `package.json` 版本
+- 创建 `vX.Y.Z` Tag 和 GitHub Release
+- 上传 `zhtrans-chrome.zip` 及其 SHA256 校验文件
+
+纯文档或维护类提交不会生成 Beta 版本。
 
 说明：
 
-- 不再需要手动执行 `git tag v1.0.0 && git push origin v1.0.0`
-- 如果希望 Release PR 也触发完整 CI，建议在仓库 secret 中配置 `RELEASE_PLEASE_TOKEN`（PAT）；否则默认使用 `GITHUB_TOKEN`
+- 不再需要手动创建 Tag
+- 建议在仓库 Secret 中配置 `RELEASE_PLEASE_TOKEN`（PAT），确保 Release Please 创建的 PR 能自动触发 CI；否则默认使用 `GITHUB_TOKEN`
 
 运行测试：
 
