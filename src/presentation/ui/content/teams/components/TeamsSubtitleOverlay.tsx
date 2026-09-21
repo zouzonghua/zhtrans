@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'preact/hooks';
 import { TeamsSubtitleState } from '@/presentation/viewmodels/TeamsSubtitleViewModel';
 
 interface Props {
@@ -5,13 +6,22 @@ interface Props {
 }
 
 export function TeamsSubtitleOverlay({ state }: Props) {
-    if (state.isWaiting) {
+    const [showReadyNotice, setShowReadyNotice] = useState(true);
+
+    useEffect(() => {
+        const timer = window.setTimeout(() => setShowReadyNotice(false), 5000);
+        return () => window.clearTimeout(timer);
+    }, []);
+
+    if (state.isWaiting && showReadyNotice) {
         return (
             <div style={waitingStyle}>
                 ZhTrans 已就绪 · 请在 Teams 中开启实时字幕
             </div>
         );
     }
+
+    if (state.isWaiting) return null;
 
     return (
         <div style={viewportStyle}>
